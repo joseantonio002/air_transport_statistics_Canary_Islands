@@ -1,78 +1,82 @@
 [Data source](https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/collection.html?resourceType=collection&agencyId=ISTAC&resourceId=C00017A_000001)
 
-Plan for now:
+pro-tip vscode: to visualize the readme ctrl+shift+v
 
-Upload to DuckDB two tables, one for the data grouped by territory and airport, and another for the data grouped by origin airport and destination airport
+# Plan for now
 
-Table: TrafficPerTerritory
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| IslandId             | UTINYINT |
-| LayoverAirportId     | UTINYINT |
-| AircraftMovementId   | UTINYINT |
-| AirServiceId         | UTINYINT |
-| Date                 | DATE     |
-| Passengers           | UINTEGER |
-| Goods                | UINTEGER |
-| Mail                 | UINTEGER |
-| Operations           | UINTEGER |
-+----------------------+----------+
-Remove "Total" values (or not... think about this), dates with only the year, "Canarias" from Territory (is the sum of all territories), "Comercial" from AircraftMovement (its the sum of regular + non regular)
+Upload to DuckDB two tables:
+- One for the data grouped by territory and airport
+- Another for the data grouped by origin airport and destination airport
 
-Table: Island
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| TerritoryId          | UTINYINT |
-| Territory            | VARCHAR  |
-+----------------------+----------+
+First I need to know what data am I gonna store
 
-Table: LayoverAirport
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| LayoverAirportId     | UTINYINT |
-| LayoverAirport       | VARCHAR  |
-+----------------------+----------+
+For the second table, Im gonna do a prototype of the visualization to see 
+if its worth it storing information about airport latitude and longitude
 
-Table: AircraftMovement
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| AircraftMovementId   | UTINYINT |
-| AircraftMovement     | VARCHAR  |
-+----------------------+----------+
+## Table: TrafficPerTerritory
 
-Table: AirService
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| AirServiceId         | UTINYINT |
-| AirService           | VARCHAR  |
-+----------------------+----------+
+| Column Name           | Type       |
+|-----------------------|------------|
+| IslandId              | UTINYINT   |
+| LayoverTerritoryId    | UTINYINT   |
+| AircraftMovementId    | UTINYINT   |
+| AirServiceId          | UTINYINT   |
+| Date                  | DATE       |
+| Passengers            | UINTEGER   |
+| Goods                 | UINTEGER   |
+| Mail                  | UINTEGER   |
+| Operations            | UINTEGER   |
 
-Table: TrafficPerAirport
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| BaseAirportId        | UTINYINT |
-| LayoverAirportId     | UTINYINT |
-| AircraftMovementId   | UTINYINT |
-| AirServiceId         | UTINYINT |
-| Date                 | DATE     |
-| Passengers           | UINTEGER |
-| Goods                | UINTEGER |
-| Mail                 | UINTEGER |
-| Operations           | UINTEGER |
-+----------------------+----------+
+## Table: Territory
 
-Table: TrafficPerAirport
-+----------------------+----------+
-| Column Name          | Type     |
-+----------------------+----------+
-| TrafficPerAirportId  | UTINYINT |
-| TrafficPerAirport    | VARCHAR  |
-+----------------------+----------+
+| Column Name   | Type      |
+|---------------|-----------|
+| TerritoryId   | UTINYINT  |
+| Territory     | VARCHAR   |
 
-Maybe to make it less rows, rows with null aka 0 delete them
+Values: ['Reino Unido' 'Extranjero' 'Canarias' 'España (excluida Canarias)'
+ 'España' 'Total' 'Alemania' 'Lanzarote' 'Fuerteventura' 'Gran Canaria' 'Tenerife'
+ 'La Gomera' 'La Palma' 'El Hierro']
+
+## Table: AircraftMovement
+
+| Column Name            | Type      |
+|------------------------|-----------|
+| AircraftMovementId     | UTINYINT  |
+| AircraftMovement       | VARCHAR   |
+
+Values: ['Arrival' 'Departure' 'Total']
+
+## Table: AirService
+
+| Column Name    | Type      |
+|----------------|-----------|
+| AirServiceId   | UTINYINT  |
+| AirService     | VARCHAR   |
+
+Values: ['Comercial (Total)' 'Other comercial services' 'No regular' 'Regular']
+
+## Table: TrafficPerAirport
+
+| Column Name           | Type       |
+|-----------------------|------------|
+| BaseAirportId         | UINTEGER   |
+| LayoverAirportId      | UINTEGER   |
+| AircraftMovementId    | UTINYINT   |
+| AirServiceId          | UTINYINT   |
+| Date                  | DATE       |
+| Passengers            | UINTEGER   |
+| Goods                 | UINTEGER   |
+| Mail                  | UINTEGER   |
+| Operations            | UINTEGER   |
+
+## Table: Airport
+
+| Column Name          | Type      |
+|----------------------|-----------|
+| AirportId            | UINTEGER  |
+| AirportName          | VARCHAR   |
+| Latitude
+| Longitude
+| Country
+
