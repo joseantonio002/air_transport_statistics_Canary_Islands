@@ -7,8 +7,8 @@ In this file I will be documenting what I do every day
 - Analyze the data
 - Think of an execution plan
 1) Data modeling
-2) Scripts to bring the data
-3) Data into duckdb
+2) Pipeline into warehouse (duckdb)
+3) Install and understand duckdb
 4) Analytical queries
 5) Train models
 6) Visualization
@@ -35,4 +35,13 @@ Steps of the prototype:\
 
 Conclusion of the prototype: Yes, I can host it in github pages and it looks cool
 
-Now That I did the prototype and I know what data I need, I can finally end the first step and start with the second step, creating the ETL scripts that will ingest, transform and serve the data to our data warehouse
+Now That I did the prototype and I know what data I need, I can finally end the first step and start with the second step, creating the pipeline that will ingest, transform and serve the data to our data warehouse
+
+## 29/08/25
+
+Current step: 2) Pipeline into warehouse
+
+First create the dimensions tables, we asume that this tables are not going to change so we only have to create them once
+
+Airport created.
+
