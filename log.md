@@ -45,3 +45,13 @@ First create the dimensions tables, we asume that this tables are not going to c
 
 Airport created.
 
+## 29/08/25
+
+Current step: 2) Pipeline into warehouse
+
+Finish creating dimensions tables
+
+To create the pipeline into the warehouse, first create and load the two facts tables with all the data until now, and once we have it
+we can then do the pipeline only querying the last data from the API. All the code that creates tables that will not be modified in the pipeline will be stored in the "code_not_pipeline_tables" folder. Pipeline code will be stored in the "code_pipeline"
+
+I think TrafficPerTerritory is already done but I have to check, tomorrow

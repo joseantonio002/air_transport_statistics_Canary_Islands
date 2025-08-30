@@ -13,7 +13,7 @@ pro-tip vscode: to visualize the readme ctrl+shift+v
 | StopoverTerritoryId   | UTINYINT   |
 | AircraftMovementId    | UTINYINT   |
 | AirServiceId          | UTINYINT   |
-| Date                  | DATE       |
+| Month                 | DATE       |
 | Passengers            | UINTEGER   |
 | Goods                 | UINTEGER   |
 | Mail                  | UINTEGER   |
@@ -27,8 +27,8 @@ pro-tip vscode: to visualize the readme ctrl+shift+v
 | Territory     | VARCHAR   |
 
 Values: ['Reino Unido' 'Extranjero' 'Canarias' 'España (excluida Canarias)'
- 'España' 'Total' 'Alemania' 'Lanzarote' 'Fuerteventura' 'Gran Canaria' 'Tenerife'
- 'La Gomera' 'La Palma' 'El Hierro']
+  'Alemania' 'Lanzarote' 'Fuerteventura' 'Gran Canaria' 'Tenerife'
+ 'La Gomera' 'La Palma' 'El Hierro' 'Total']
 
 ## Table: AircraftMovement
 
@@ -63,6 +63,7 @@ Values: ['Comercial (Total)' 'Other comercial services' 'No regular' 'Regular']
 | Operations            | UINTEGER   |
 
 ## Table: Airport
+
 
 | Column Name          | Type      |
 |----------------------|-----------|
