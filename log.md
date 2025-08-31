@@ -21,6 +21,8 @@ Upload to DuckDB two tables:
 
 First I need to know what data am I gonna store
 
+pro-tip vscode: to visualize the readme ctrl+shift+v
+
 ## 28/08/25
 
 Current step: 1) Data modeling
@@ -55,3 +57,14 @@ To create the pipeline into the warehouse, first create and load the two facts t
 we can then do the pipeline only querying the last data from the API. All the code that creates tables that will not be modified in the pipeline will be stored in the "code_not_pipeline_tables" folder. Pipeline code will be stored in the "code_pipeline"
 
 I think TrafficPerTerritory is already done but I have to check, tomorrow
+
+## 30/08/25
+
+Current step: 2) Pipeline into warehouse, creating the two facts tables before the final pipeline
+
+TrafficPerTerritory had an error as I suspected, I was deleting nan values before filling with 0 the observed values with nan. Thats why the number of rows wasnt the one expected. Finished TrafficPerTerritory
+
+TrafficPerAirport:
+There is something wrong with the operations or passenger data, passenger data has double the rows that operations when they should have the same
+Check tomorrow
+

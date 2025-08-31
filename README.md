@@ -1,8 +1,6 @@
 [Data source](https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/collection.html?resourceType=collection&agencyId=ISTAC&resourceId=C00017A_000001)
 [Airport Data](https://ourairports.com/data/?spm=a2ty_o01.29997173.0.0.59a6c921d0cVCU)
 
-pro-tip vscode: to visualize the readme ctrl+shift+v
-
 # Data modeling:
 
 ## Table: TrafficPerTerritory
