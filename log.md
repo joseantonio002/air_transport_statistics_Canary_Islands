@@ -68,3 +68,9 @@ TrafficPerAirport:
 There is something wrong with the operations or passenger data, passenger data has double the rows that operations when they should have the same
 Check tomorrow
 
+## 31/08/25
+
+Current step: 2) Pipeline into warehouse, creating the two facts tables before the final pipeline
+After checking, the operations dataset does not have all the airports that the passenger dataset has, so well do a full outer join, fill nan with 0 and 
+
+Finished the difficult part about creating TrafficPerAirport, only thing left is to change names to Id and rename columns, tomorrow
