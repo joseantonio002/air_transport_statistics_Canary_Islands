@@ -47,7 +47,7 @@ First create the dimensions tables, we asume that this tables are not going to c
 
 Airport created.
 
-## 29/08/25
+## 30/08/25
 
 Current step: 2) Pipeline into warehouse
 
@@ -58,7 +58,7 @@ we can then do the pipeline only querying the last data from the API. All the co
 
 I think TrafficPerTerritory is already done but I have to check, tomorrow
 
-## 30/08/25
+## 31/08/25
 
 Current step: 2) Pipeline into warehouse, creating the two facts tables before the final pipeline
 
@@ -68,9 +68,13 @@ TrafficPerAirport:
 There is something wrong with the operations or passenger data, passenger data has double the rows that operations when they should have the same
 Check tomorrow
 
-## 31/08/25
+## 1/09/25
 
 Current step: 2) Pipeline into warehouse, creating the two facts tables before the final pipeline
 After checking, the operations dataset does not have all the airports that the passenger dataset has, so well do a full outer join, fill nan with 0 and 
 
 Finished the difficult part about creating TrafficPerAirport, only thing left is to change names to Id and rename columns, tomorrow
+
+## 2/09/25
+
+Finished tables

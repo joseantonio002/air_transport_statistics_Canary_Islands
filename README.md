@@ -54,7 +54,7 @@ Values: ['Comercial (Total)' 'Other comercial services' 'No regular' 'Regular']
 | StopoverAirportId     | UINTEGER   |
 | AircraftMovementId    | UTINYINT   |
 | AirServiceId          | UTINYINT   |
-| Date                  | DATE       |
+| Month                 | DATE       |
 | Passengers            | UINTEGER   |
 | Goods                 | UINTEGER   |
 | Mail                  | UINTEGER   |
