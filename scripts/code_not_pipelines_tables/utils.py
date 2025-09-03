@@ -1,9 +1,6 @@
 import requests
 from io import StringIO
 
-
-
-
 def get_data_from_API_call(url):
     """
     Send a GET request to the specified URL and return the response

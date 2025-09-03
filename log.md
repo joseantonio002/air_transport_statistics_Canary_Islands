@@ -7,7 +7,7 @@ In this file I will be documenting what I do every day
 - Analyze the data
 - Think of an execution plan
 1) Data modeling
-2) Pipeline into warehouse (duckdb)
+2) Pipeline into datalake
 3) Install and understand duckdb
 4) Analytical queries
 5) Train models
@@ -78,3 +78,19 @@ Finished the difficult part about creating TrafficPerAirport, only thing left is
 ## 2/09/25
 
 Finished tables
+
+## 3/09/25
+
+Current step: 2) Pipeline into warehouse, creating the two facts tables before the final pipeline
+
+Now that I have the tables ready to upload, I will install duckdb, upload them and then start the pipeline scripts.\
+Okay so after some investigation, we dont really need to upload the csv to tables, we can work with them as they are,
+in the next SQL project I do I will create tables, functions, views and all of that... In this project creating the table
+is not necessary we can run the queries over the csv file no problem.
+
+In other words, instead of storing the data in tables for now reason when we already have the csv files and we dont need any additional features from the database (only thing we need is retrieve the data for analytical purpouses and we can do that with csv files), following a **data lake** approach
+
+So the plan is:
+1) End steps 2) and 3) 
+2) Start step 4) Analytical Queries
+
