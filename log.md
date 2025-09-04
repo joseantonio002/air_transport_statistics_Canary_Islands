@@ -94,3 +94,17 @@ So the plan is:
 1) End steps 2) and 3) 
 2) Start step 4) Analytical Queries
 
+## 4/09/25
+
+The standard DuckDB Python API provides a SQL interface compliant with the DB-API 2.0 
+specification described by PEP 249 similar to the SQLite Python API
+https://peps.python.org/pep-0249/
+Check that
+
+Possible improvements:
+Add algorithm to retrieve missing data for more than one month automatically
+Refactorize pipeline codes (they are very similar)
+
+Finished pipeline scripts
+
+Now do some analytical queries with duckdb just for the fun of it
