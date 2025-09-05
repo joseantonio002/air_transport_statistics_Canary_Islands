@@ -107,4 +107,8 @@ Refactorize pipeline codes (they are very similar)
 
 Finished pipeline scripts
 
-Now do some analytical queries with duckdb just for the fun of it
+Now do some analytical queries with duckdb just for the fun of it and that I could show on the dashboard
+
+## 5/09/25
+
+Doing analytical queries

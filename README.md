@@ -67,7 +67,7 @@ Values: ['Comercial (Total)' 'Other comercial services' 'No regular' 'Regular']
 |----------------------|-----------|
 | AirportId            | UINTEGER  |
 | AirportName          | VARCHAR   |
-| Latitude             |           |
-| Longitude            |           |
-| CountryCode          |           |
-| CountryName          |           |
+| Latitude             | DOUBLE    |
+| Longitude            | DOUBLE    |
+| CountryCode          | VARCHAR   |
+| CountryName          | VARCHAR   |
