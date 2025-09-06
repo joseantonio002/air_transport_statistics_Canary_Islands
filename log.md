@@ -71,7 +71,7 @@ Check tomorrow
 ## 1/09/25
 
 Current step: 2) Pipeline into warehouse, creating the two facts tables before the final pipeline
-After checking, the operations dataset does not have all the airports that the passenger dataset has, so well do a full outer join, fill nan with 0 and 
+After checking, the operations dataset does not have all the airports that the passenger dataset has, so well do a full outer join, fill nan with 0 
 
 Finished the difficult part about creating TrafficPerAirport, only thing left is to change names to Id and rename columns, tomorrow
 
@@ -112,3 +112,7 @@ Now do some analytical queries with duckdb just for the fun of it and that I cou
 ## 5/09/25
 
 Doing analytical queries
+
+## 6/09/25
+
+Continue analytical queries
