@@ -116,3 +116,7 @@ Doing analytical queries
 ## 6/09/25
 
 Continue analytical queries
+
+## 7/09/25
+
+end queries
