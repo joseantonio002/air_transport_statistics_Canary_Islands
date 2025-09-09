@@ -10,10 +10,11 @@ In this file I will be documenting what I do every day
 2) Pipeline into datalake
 3) Install and understand duckdb
 4) Analytical queries
-5) Train models
-6) Visualization
-7) Orchestration
-8) Deployment
+5) Plan visualization
+6) Train models
+7) Visualization
+8) Orchestration
+9) Deployment
 
 Upload to DuckDB two tables:
 - One for the data grouped by territory and airport
@@ -120,3 +121,30 @@ Continue analytical queries
 ## 7/09/25
 
 end queries
+
+Start:\
+5) Plan visualization
+6) Train models
+
+First plan the visualization so we choose some metrics to predict, and then train the models to do so
+
+## 8/09/25
+
+Current step:\
+5) Plan visualization
+6) Train models
+
+Make four visualizations:\
+1) Map visualization with tpt data and filters for all variables
+2) Line graph with tpa data and filters for all variables
+3) Line graph with tpt data AND predictions for passenger arrivals, filter each island 
+4) Top of foreign airports for each measure
+
+The idea of the models is that they would be retrained every time there is new data, so their training is part of the data pipelin
+
+## 9/09/25
+
+Current step:\
+6) Train models
+
+For tomorrow, do prophet with all islands not just one and pipeline style
