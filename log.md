@@ -148,3 +148,8 @@ Current step:\
 6) Train models
 
 For tomorrow, do prophet with all islands not just one and pipeline style
+
+JUST REALIZED THERE IS A BUG IN THE CREATION OF THE TABLES, okay easy to spot, basically because stopoverterritory FOREIGN counts GB, Germany and the rest of the world, when we group and sum is adding GB and Germany twice. To solve this, when we create TrafficPerTerritory, make sure that FOREIGN is FOREIGN = - GB - Germnay
+
+## 10/09/25
+
