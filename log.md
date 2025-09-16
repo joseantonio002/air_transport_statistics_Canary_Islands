@@ -138,7 +138,7 @@ Make four visualizations:\
 1) Map visualization with tpt data and filters for all variables
 2) Line graph with tpa data and filters for all variables
 3) Line graph with tpt data AND predictions for passenger arrivals, filter each island 
-4) Top of foreign airports for each measure
+4) Top foreign airports for each measure
 
 The idea of the models is that they would be retrained every time there is new data, so their training is part of the data pipeline
 
@@ -157,3 +157,10 @@ Current step:\
 6) Train models
 
 Lets simplify the visualization and for the predictions only passengers
+
+## 16/09/25
+
+Current step:\
+7) Visualization
+
+
