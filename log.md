@@ -163,4 +163,9 @@ Lets simplify the visualization and for the predictions only passengers
 Current step:\
 7) Visualization
 
+## 17/09/25
+
+Current step:\
+7) Visualization
+
 
