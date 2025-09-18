@@ -181,6 +181,8 @@ You can install git-lfs on WSL through your linux distribution's package manager
 sudo apt-get install git-lfs
 git lfs install
 
+Okay, problem, so I cant push the visualization because the html is too large, so I use lfs to push it, but if I use lfs on html files then they dont work with github pages. 
 
+So basically dont use lfs and reduce the amount of data so I can push it withouth lfs. Only options If I dont want to use paid hosts
 
 
