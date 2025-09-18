@@ -168,4 +168,19 @@ Current step:\
 Current step:\
 7) Visualization
 
+## 18/09/25
+
+Current step:\
+7) Visualization
+
+Upload bigger files to git & github
+https://git-lfs.com/
+
+You can install git-lfs on WSL through your linux distribution's package manager. For example, in Debian or Ubuntu on WSL you would type:
+
+sudo apt-get install git-lfs
+git lfs install
+
+
+
 
