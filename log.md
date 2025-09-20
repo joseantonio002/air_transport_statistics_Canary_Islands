@@ -185,4 +185,11 @@ Okay, problem, so I cant push the visualization because the html is too large, s
 
 So basically dont use lfs and reduce the amount of data so I can push it withouth lfs. Only options If I dont want to use paid hosts
 
+Deployment in docs, next day finish the remaining plots
 
+## 20/09/25
+
+Due to the size limitation, we can not make a line graph between each airport for all the months and filters for air service and aircraft movement\
+Since the purpouse of this visualization is see the data between airports in the maximum time possible, lets remove air service and aircraf movement and just use the totals, and lets see if this way the file size is not too big
+
+Another visualization done
