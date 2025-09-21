@@ -193,3 +193,6 @@ Due to the size limitation, we can not make a line graph between each airport fo
 Since the purpouse of this visualization is see the data between airports in the maximum time possible, lets remove air service and aircraf movement and just use the totals, and lets see if this way the file size is not too big
 
 Another visualization done
+
+## 21/09/25
+

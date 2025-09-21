@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Passenger Predictions</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      background-color: #f5f5f5;
+    }
+
+    .filters-container { 
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 20px 20px 20px 20px;
+    }
+
+    .filters-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px; 
+      align-items: end;
+    }
+
+    .filter-group { 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    .filter-group label { 
+      font-weight: bold;
+      margin-bottom: 5px; 
+      color: #333; 
+      font-size: 14px;
+    }
+
+    .filter-group select { 
+      padding: 8px 12px; 
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      background: white;
+    }
+
+    .reset-btn { 
+      padding: 8px 20px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .reset-btn:hover { 
+      background-color: #c0392b;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin: 0 20px 20px 20px;
+    }
+
+    #prediction_graph_div { 
+      width: 100%; 
+      height: 500px; 
+    }
+
+    .summary {
+      background: #3498db;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 0 20px 20px 20px;
+      font-size: 14px;
+    }
+
+    .empty-note { 
+      color: #666; 
+      text-align: center;
+      padding: 40px;
+      font-style: italic;
+    }
+
+    .legend-info {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="filters-container">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Island ID</label>
+        <select id="islandSelect">
+          <option value="Canary Islands">Canary Islands</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <button class="reset-btn" id="resetBtn">Reset Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="summaryDiv" class="summary" style="display:none;"></div>
+
+  <div class="chart-container">
+    <div id="prediction_graph_div"></div>
+    <div class="empty-note" id="emptyNote" style="display:none;">
+      No data available for the selected island.
+    </div>
+    <div class="legend-info">
+      <strong>Legend:</strong> Real Passengers (blue solid), Prediction (red dashed), 
+      Prediction Bounds (green dashed), Confidence Band (light gray shaded area)
+    </div>
+  </div>
+
+<script>
+const rawData = [{"Month": "2023-01-01", "Island": "Canary Islands", "RealPassengers": 3917516.0, "yhat_lower": 3899501.268830575, "yhat": 4106953.415871127, "yhat_upper": 4304925.058950408}, {"Month": "2023-02-01", "Island": "Canary Islands", "RealPassengers": 3813702.0, "yhat_lower": 3836502.3522187336, "yhat": 4044462.682727498, "yhat_upper": 4247256.681659964}, {"Month": "2023-03-01", "Island": "Canary Islands", "RealPassengers": 4264949.0, "yhat_lower": 4205533.428800442, "yhat": 4425699.537535975, "yhat_upper": 4620888.931913571}, {"Month": "2023-04-01", "Island": "Canary Islands", "RealPassengers": 4015098.0, "yhat_lower": 4012815.798179315, "yhat": 4211806.919090206, "yhat_upper": 4419762.949247964}, {"Month": "2023-05-01", "Island": "Canary Islands", "RealPassengers": 3598879.0, "yhat_lower": 3561044.19088772, "yhat": 3762583.1103120334, "yhat_upper": 3957404.9618739854}, {"Month": "2023-06-01", "Island": "Canary Islands", "RealPassengers": 3589409.0, "yhat_lower": 3616096.7921706005, "yhat": 3813745.109127133, "yhat_upper": 4020692.1275448473}, {"Month": "2023-07-01", "Island": "Canary Islands", "RealPassengers": 4061966.0, "yhat_lower": 4077782.2767629595, "yhat": 4271136.386547585, "yhat_upper": 4479980.81370772}, {"Month": "2023-08-01", "Island": "Canary Islands", "RealPassengers": 4081902.0, "yhat_lower": 4213259.568431942, "yhat": 4423990.3151786765, "yhat_upper": 4629559.335872333}, {"Month": "2023-09-01", "Island": "Canary Islands", "RealPassengers": 3777710.0, "yhat_lower": 3812208.4810370444, "yhat": 4016784.51908384, "yhat_upper": 4214480.928395681}, {"Month": "2023-10-01", "Island": "Canary Islands", "RealPassengers": 4208515.0, "yhat_lower": 4119393.9811774692, "yhat": 4327816.85343322, "yhat_upper": 4521110.727905565}, {"Month": "2023-11-01", "Island": "Canary Islands", "RealPassengers": 4272700.0, "yhat_lower": 4074738.8011290287, "yhat": 4273077.962756812, "yhat_upper": 4493050.160340954}, {"Month": "2023-12-01", "Island": "Canary Islands", "RealPassengers": 4430240.0, "yhat_lower": 4111711.136032948, "yhat": 4294684.671650864, "yhat_upper": 4503271.744970655}, {"Month": "2024-01-01", "Island": "Canary Islands", "RealPassengers": 4255811.0, "yhat_lower": 4013551.197068678, "yhat": 4204470.1444546385, "yhat_upper": 4405584.79599382}, {"Month": "2024-02-01", "Island": "Canary Islands", "RealPassengers": 4357793.0, "yhat_lower": 3989736.8243728434, "yhat": 4182289.7521546404, "yhat_upper": 4377067.179171078}, {"Month": "2024-03-01", "Island": "Canary Islands", "RealPassengers": 4921071.0, "yhat_lower": 4429233.646602449, "yhat": 4628239.595575722, "yhat_upper": 4835190.126717541}, {"Month": "2024-04-01", "Island": "Canary Islands", "RealPassengers": 4182631.0, "yhat_lower": 4052835.6768800286, "yhat": 4259955.967671822, "yhat_upper": 4459470.037593236}, {"Month": "2024-05-01", "Island": "Canary Islands", "RealPassengers": 3918675.0, "yhat_lower": 3695125.8720739563, "yhat": 3892251.6346939704, "yhat_upper": 4097088.090703844}, {"Month": "2024-06-01", "Island": "Canary Islands", "RealPassengers": 3986030.0, "yhat_lower": 3726221.5276054447, "yhat": 3931538.627567915, "yhat_upper": 4145912.089152253}, {"Month": "2024-07-01", "Island": "Canary Islands", "RealPassengers": 4332220.0, "yhat_lower": 4170269.938244571, "yhat": 4355553.875517503, "yhat_upper": 4556766.402223299}, {"Month": "2024-08-01", "Island": "Canary Islands", "RealPassengers": 4465570.0, "yhat_lower": 4375634.052900815, "yhat": 4558356.430907764, "yhat_upper": 4771525.183167873}, {"Month": "2024-09-01", "Island": "Canary Islands", "RealPassengers": 4068256.0, "yhat_lower": 3908093.8712057434, "yhat": 4114559.5726670194, "yhat_upper": 4297692.394146594}, {"Month": "2024-10-01", "Island": "Canary Islands", "RealPassengers": 4494702.0, "yhat_lower": 4221896.4782391945, "yhat": 4423376.133679314, "yhat_upper": 4617448.373406727}, {"Month": "2024-11-01", "Island": "Canary Islands", "RealPassengers": 4756405.0, "yhat_lower": 4225613.208432128, "yhat": 4399044.9223118005, "yhat_upper": 4593178.576682578}, {"Month": "2024-12-01", "Island": "Canary Islands", "RealPassengers": 4749377.0, "yhat_lower": 4194472.635295295, "yhat": 4403829.897511273, "yhat_upper": 4597499.190605639}, {"Month": "2025-01-01", "Island": "Canary Islands", "RealPassengers": 4551940.0, "yhat_lower": 4140695.1207845355, "yhat": 4344961.37190508, "yhat_upper": 4551484.25875655}, {"Month": "2025-02-01", "Island": "Canary Islands", "RealPassengers": 4467902.0, "yhat_lower": 4004948.8881136435, "yhat": 4200617.852995588, "yhat_upper": 4410154.674694107}, {"Month": "2025-03-01", "Island": "Canary Islands", "RealPassengers": 5032742.0, "yhat_lower": 4499166.951007438, "yhat": 4704945.575375245, "yhat_upper": 4908151.377563801}, {"Month": "2025-04-01", "Island": "Canary Islands", "RealPassengers": 4568281.0, "yhat_lower": 4194653.0222317055, "yhat": 4387682.753775835, "yhat_upper": 4588780.039770079}, {"Month": "2025-05-01", "Island": "Canary Islands", "RealPassengers": 4094585.0, "yhat_lower": 3796313.798504676, "yhat": 3993049.000276718, "yhat_upper": 4196828.22901383}, {"Month": "2025-06-01", "Island": "Canary Islands", "RealPassengers": 4168654.0, "yhat_lower": 3838796.7967759343, "yhat": 4035992.5480229557, "yhat_upper": 4236790.601666067}, {"Month": "2025-07-01", "Island": "Canary Islands", "RealPassengers": 4597800.0, "yhat_lower": 4267890.109405697, "yhat": 4471502.6284777485, "yhat_upper": 4658704.1527769165}, {"Month": "2025-08-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4453021.043627701, "yhat": 4657705.524679709, "yhat_upper": 4864271.890874779}, {"Month": "2025-09-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4028887.0133770546, "yhat": 4225685.7407101635, "yhat_upper": 4426563.785364791}, {"Month": "2025-10-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4333465.350500684, "yhat": 4535670.786867357, "yhat_upper": 4741769.886570444}, {"Month": "2025-11-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4310626.221299199, "yhat": 4501120.457118624, "yhat_upper": 4698401.911658162}, {"Month": "2025-12-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4304039.16713086, "yhat": 4511405.569116695, "yhat_upper": 4700306.621388413}, {"Month": "2026-01-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4245429.242831728, "yhat": 4441722.411376512, "yhat_upper": 4634804.388730821}, {"Month": "2026-02-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4139249.435952541, "yhat": 4338499.241235727, "yhat_upper": 4543077.759145329}, {"Month": "2026-03-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4594572.891915221, "yhat": 4781392.411852976, "yhat_upper": 4984796.483758594}, {"Month": "2026-04-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4324557.993512454, "yhat": 4515604.189182303, "yhat_upper": 4719961.627408942}, {"Month": "2026-05-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 3880361.048762833, "yhat": 4093792.2003662316, "yhat_upper": 4298988.316373676}, {"Month": "2026-06-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 3948389.4746249435, "yhat": 4140696.30525348, "yhat_upper": 4341318.589571832}, {"Month": "2026-07-01", "Island": "Canary Islands", "RealPassengers": null, "yhat_lower": 4392792.784933829, "yhat": 4587335.196660195, "yhat_upper": 4797515.824334081}, {"Month": "2023-01-01", "Island": "El Hierro", "RealPassengers": 19834.0, "yhat_lower": 20834.958294098833, "yhat": 22440.019414926574, "yhat_upper": 24136.906775070223}, {"Month": "2023-02-01", "Island": "El Hierro", "RealPassengers": 19077.0, "yhat_lower": 20472.21655488575, "yhat": 22218.255007516284, "yhat_upper": 23918.71428484642}, {"Month": "2023-03-01", "Island": "El Hierro", "RealPassengers": 23174.0, "yhat_lower": 22177.494729972925, "yhat": 23816.124681435624, "yhat_upper": 25443.916285246843}, {"Month": "2023-04-01", "Island": "El Hierro", "RealPassengers": 24147.0, "yhat_lower": 22915.19645399312, "yhat": 24573.711478584755, "yhat_upper": 26244.10339631063}, {"Month": "2023-05-01", "Island": "El Hierro", "RealPassengers": 24137.0, "yhat_lower": 22905.727669093656, "yhat": 24579.317430341496, "yhat_upper": 26186.661570831395}, {"Month": "2023-06-01", "Island": "El Hierro", "RealPassengers": 23020.0, "yhat_lower": 22684.42028253558, "yhat": 24300.30552955044, "yhat_upper": 26058.96896791615}, {"Month": "2023-07-01", "Island": "El Hierro", "RealPassengers": 31020.0, "yhat_lower": 26470.41141049667, "yhat": 28211.167097498044, "yhat_upper": 29854.37343068272}, {"Month": "2023-08-01", "Island": "El Hierro", "RealPassengers": 32512.0, "yhat_lower": 28193.082164222786, "yhat": 29811.842056625654, "yhat_upper": 31388.474612799444}, {"Month": "2023-09-01", "Island": "El Hierro", "RealPassengers": 29191.0, "yhat_lower": 25194.3190168512, "yhat": 26793.931200800336, "yhat_upper": 28489.136218066928}, {"Month": "2023-10-01", "Island": "El Hierro", "RealPassengers": 26599.0, "yhat_lower": 24110.432461365373, "yhat": 25806.77452793346, "yhat_upper": 27459.22271112377}, {"Month": "2023-11-01", "Island": "El Hierro", "RealPassengers": 24349.0, "yhat_lower": 23105.39819328064, "yhat": 24762.480417044077, "yhat_upper": 26323.438820743588}, {"Month": "2023-12-01", "Island": "El Hierro", "RealPassengers": 23920.0, "yhat_lower": 23369.819920853242, "yhat": 25011.483963129507, "yhat_upper": 26630.126187744238}, {"Month": "2024-01-01", "Island": "El Hierro", "RealPassengers": 21835.0, "yhat_lower": 21708.190405253146, "yhat": 23378.403063746995, "yhat_upper": 24999.084795781764}, {"Month": "2024-02-01", "Island": "El Hierro", "RealPassengers": 22512.0, "yhat_lower": 21772.004899724907, "yhat": 23456.117478718767, "yhat_upper": 25163.164099207635}, {"Month": "2024-03-01", "Island": "El Hierro", "RealPassengers": 26538.0, "yhat_lower": 23658.854115378654, "yhat": 25442.342229104368, "yhat_upper": 26925.961661303092}, {"Month": "2024-04-01", "Island": "El Hierro", "RealPassengers": 23816.0, "yhat_lower": 23463.30180004163, "yhat": 25060.84524301094, "yhat_upper": 26662.746724509514}, {"Month": "2024-05-01", "Island": "El Hierro", "RealPassengers": 25401.0, "yhat_lower": 24302.446547852684, "yhat": 25922.053564061516, "yhat_upper": 27598.495842022512}, {"Month": "2024-06-01", "Island": "El Hierro", "RealPassengers": 26492.0, "yhat_lower": 24583.78849567542, "yhat": 26183.78296292293, "yhat_upper": 27822.74928370242}, {"Month": "2024-07-01", "Island": "El Hierro", "RealPassengers": 29004.0, "yhat_lower": 26779.89528527102, "yhat": 28457.67708980344, "yhat_upper": 29936.6502695439}, {"Month": "2024-08-01", "Island": "El Hierro", "RealPassengers": 35516.0, "yhat_lower": 28416.72022809462, "yhat": 30012.143154924936, "yhat_upper": 31746.61335453211}, {"Month": "2024-09-01", "Island": "El Hierro", "RealPassengers": 30852.0, "yhat_lower": 26007.772374795735, "yhat": 27634.890051410992, "yhat_upper": 29419.47020595785}, {"Month": "2024-10-01", "Island": "El Hierro", "RealPassengers": 27569.0, "yhat_lower": 25638.5508418745, "yhat": 27257.096180110642, "yhat_upper": 28983.980002417098}, {"Month": "2024-11-01", "Island": "El Hierro", "RealPassengers": 26647.0, "yhat_lower": 24108.544240126856, "yhat": 25909.641009827887, "yhat_upper": 27477.03561766013}, {"Month": "2024-12-01", "Island": "El Hierro", "RealPassengers": 25508.0, "yhat_lower": 24481.227206204334, "yhat": 26058.332056208877, "yhat_upper": 27600.79611206279}, {"Month": "2025-01-01", "Island": "El Hierro", "RealPassengers": 22820.0, "yhat_lower": 22608.806432030342, "yhat": 24301.13907169327, "yhat_upper": 25896.29798646796}, {"Month": "2025-02-01", "Island": "El Hierro", "RealPassengers": 21889.0, "yhat_lower": 21830.840759359282, "yhat": 23460.658707429753, "yhat_upper": 24944.416585013092}, {"Month": "2025-03-01", "Island": "El Hierro", "RealPassengers": 23549.0, "yhat_lower": 24422.457129865168, "yhat": 26143.930935491677, "yhat_upper": 27663.105956113726}, {"Month": "2025-04-01", "Island": "El Hierro", "RealPassengers": 24855.0, "yhat_lower": 24456.48086263649, "yhat": 26139.91709216138, "yhat_upper": 27766.774078728227}, {"Month": "2025-05-01", "Island": "El Hierro", "RealPassengers": 24816.0, "yhat_lower": 25037.76124717966, "yhat": 26718.985957799665, "yhat_upper": 28270.646667680696}, {"Month": "2025-06-01", "Island": "El Hierro", "RealPassengers": 25887.0, "yhat_lower": 25072.786236720432, "yhat": 26789.78082441369, "yhat_upper": 28431.218339648844}, {"Month": "2025-07-01", "Island": "El Hierro", "RealPassengers": 30479.0, "yhat_lower": 28011.10922113753, "yhat": 29608.052110348952, "yhat_upper": 31151.381250063518}, {"Month": "2025-08-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 29591.922877895257, "yhat": 31188.94838508333, "yhat_upper": 32900.38557017942}, {"Month": "2025-09-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 27065.5503115832, "yhat": 28601.74517109932, "yhat_upper": 30316.814167496093}, {"Month": "2025-10-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 26415.36476171217, "yhat": 28016.87969200032, "yhat_upper": 29618.839308270573}, {"Month": "2025-11-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 25086.971545321703, "yhat": 26765.59586898304, "yhat_upper": 28481.199038113573}, {"Month": "2025-12-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 25241.981596931124, "yhat": 26946.539096457178, "yhat_upper": 28578.41737676263}, {"Month": "2026-01-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 23632.31622587839, "yhat": 25228.095200503452, "yhat_upper": 26895.77941516363}, {"Month": "2026-02-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 22948.756166540566, "yhat": 24700.17330680781, "yhat_upper": 26463.697858397427}, {"Month": "2026-03-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 25230.328557331934, "yhat": 26842.06844430414, "yhat_upper": 28529.743121845626}, {"Month": "2026-04-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 25654.772437420823, "yhat": 27217.82238697762, "yhat_upper": 28818.010771032048}, {"Month": "2026-05-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 25830.987795116365, "yhat": 27511.592339739764, "yhat_upper": 29173.477746572808}, {"Month": "2026-06-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 25858.45701690374, "yhat": 27402.10351234191, "yhat_upper": 29073.776073904806}, {"Month": "2026-07-01", "Island": "El Hierro", "RealPassengers": null, "yhat_lower": 29191.516506082713, "yhat": 30766.241586504108, "yhat_upper": 32389.43306217938}, {"Month": "2023-01-01", "Island": "Fuerteventura", "RealPassengers": 464135.0, "yhat_lower": 444236.1866833305, "yhat": 483887.7029408361, "yhat_upper": 526616.9907792088}, {"Month": "2023-02-01", "Island": "Fuerteventura", "RealPassengers": 461382.0, "yhat_lower": 443882.06694223516, "yhat": 483277.8971635075, "yhat_upper": 522619.26615210593}, {"Month": "2023-03-01", "Island": "Fuerteventura", "RealPassengers": 527266.0, "yhat_lower": 496878.7514638403, "yhat": 537010.7342311606, "yhat_upper": 577978.0370215687}, {"Month": "2023-04-01", "Island": "Fuerteventura", "RealPassengers": 500347.0, "yhat_lower": 487580.7057624346, "yhat": 526952.2664991948, "yhat_upper": 568166.22474213}, {"Month": "2023-05-01", "Island": "Fuerteventura", "RealPassengers": 444634.0, "yhat_lower": 436105.0337852015, "yhat": 473743.72227538057, "yhat_upper": 512087.3892355926}, {"Month": "2023-06-01", "Island": "Fuerteventura", "RealPassengers": 442168.0, "yhat_lower": 448157.330107709, "yhat": 487695.4442599168, "yhat_upper": 527923.0278694257}, {"Month": "2023-07-01", "Island": "Fuerteventura", "RealPassengers": 516773.0, "yhat_lower": 521598.7293812532, "yhat": 562512.0353315682, "yhat_upper": 601456.2959997156}, {"Month": "2023-08-01", "Island": "Fuerteventura", "RealPassengers": 522723.0, "yhat_lower": 560429.391724255, "yhat": 598642.0970922086, "yhat_upper": 636920.5346321784}, {"Month": "2023-09-01", "Island": "Fuerteventura", "RealPassengers": 487893.0, "yhat_lower": 485962.619643939, "yhat": 525118.7903857701, "yhat_upper": 567235.528472728}, {"Month": "2023-10-01", "Island": "Fuerteventura", "RealPassengers": 524495.0, "yhat_lower": 516655.6814280203, "yhat": 554080.9688256601, "yhat_upper": 593857.9810628773}, {"Month": "2023-11-01", "Island": "Fuerteventura", "RealPassengers": 521885.0, "yhat_lower": 467502.5204597571, "yhat": 511303.4555009439, "yhat_upper": 550408.7496676579}, {"Month": "2023-12-01", "Island": "Fuerteventura", "RealPassengers": 512042.0, "yhat_lower": 455096.9992535724, "yhat": 493430.48090689455, "yhat_upper": 530571.431453182}, {"Month": "2024-01-01", "Island": "Fuerteventura", "RealPassengers": 500653.0, "yhat_lower": 450987.530006248, "yhat": 491854.79892811336, "yhat_upper": 529953.094778633}, {"Month": "2024-02-01", "Island": "Fuerteventura", "RealPassengers": 515249.0, "yhat_lower": 461222.22975529014, "yhat": 499363.2909885808, "yhat_upper": 538301.4922796699}, {"Month": "2024-03-01", "Island": "Fuerteventura", "RealPassengers": 594545.0, "yhat_lower": 524348.7912236315, "yhat": 563626.7158813691, "yhat_upper": 605006.6619816659}, {"Month": "2024-04-01", "Island": "Fuerteventura", "RealPassengers": 500564.0, "yhat_lower": 486543.7004881169, "yhat": 528177.1596460424, "yhat_upper": 566967.0412537587}, {"Month": "2024-05-01", "Island": "Fuerteventura", "RealPassengers": 466589.0, "yhat_lower": 450277.7166968916, "yhat": 487465.7635702195, "yhat_upper": 529133.3705557176}, {"Month": "2024-06-01", "Island": "Fuerteventura", "RealPassengers": 487231.0, "yhat_lower": 460936.0997335243, "yhat": 500916.77336975664, "yhat_upper": 540286.6987440257}, {"Month": "2024-07-01", "Island": "Fuerteventura", "RealPassengers": 544201.0, "yhat_lower": 525907.8808636685, "yhat": 567119.4686613925, "yhat_upper": 608401.8752926774}, {"Month": "2024-08-01", "Island": "Fuerteventura", "RealPassengers": 564737.0, "yhat_lower": 569534.3749238198, "yhat": 608034.3784441185, "yhat_upper": 650322.7386223816}, {"Month": "2024-09-01", "Island": "Fuerteventura", "RealPassengers": 512753.0, "yhat_lower": 494644.281033814, "yhat": 532889.4228330895, "yhat_upper": 572874.5299738186}, {"Month": "2024-10-01", "Island": "Fuerteventura", "RealPassengers": 553388.0, "yhat_lower": 513256.517112845, "yhat": 556076.4165627188, "yhat_upper": 596702.9957699678}, {"Month": "2024-11-01", "Island": "Fuerteventura", "RealPassengers": 579575.0, "yhat_lower": 486246.1856975879, "yhat": 527147.6075377535, "yhat_upper": 564674.5185070183}, {"Month": "2024-12-01", "Island": "Fuerteventura", "RealPassengers": 558740.0, "yhat_lower": 467286.1983004519, "yhat": 508120.0175153423, "yhat_upper": 545059.1876746195}, {"Month": "2025-01-01", "Island": "Fuerteventura", "RealPassengers": 541801.0, "yhat_lower": 463073.25461329566, "yhat": 504181.7617883296, "yhat_upper": 542156.4687988675}, {"Month": "2025-02-01", "Island": "Fuerteventura", "RealPassengers": 552186.0, "yhat_lower": 446107.03248908673, "yhat": 486920.5588533835, "yhat_upper": 527152.1975497971}, {"Month": "2025-03-01", "Island": "Fuerteventura", "RealPassengers": 634571.0, "yhat_lower": 529392.8650441228, "yhat": 566781.3664268774, "yhat_upper": 609153.7054954075}, {"Month": "2025-04-01", "Island": "Fuerteventura", "RealPassengers": 574009.0, "yhat_lower": 499988.84046069375, "yhat": 539698.4538883148, "yhat_upper": 579446.0558401152}, {"Month": "2025-05-01", "Island": "Fuerteventura", "RealPassengers": 507371.0, "yhat_lower": 455403.6065478425, "yhat": 494852.6948392127, "yhat_upper": 535442.0736973094}, {"Month": "2025-06-01", "Island": "Fuerteventura", "RealPassengers": 527828.0, "yhat_lower": 467409.1972499348, "yhat": 508401.7339349168, "yhat_upper": 549286.558026821}, {"Month": "2025-07-01", "Island": "Fuerteventura", "RealPassengers": 610785.0, "yhat_lower": 534440.3651007236, "yhat": 577514.1908914103, "yhat_upper": 614150.7169185594}, {"Month": "2025-08-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 576621.6298082263, "yhat": 616878.3313119202, "yhat_upper": 655207.609455616}, {"Month": "2025-09-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 500388.38329098583, "yhat": 542217.2253951671, "yhat_upper": 580123.813682766}, {"Month": "2025-10-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 527955.026085563, "yhat": 567423.5488676657, "yhat_upper": 607046.9009663465}, {"Month": "2025-11-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 494315.2042698646, "yhat": 533874.1815761277, "yhat_upper": 573053.0222672101}, {"Month": "2025-12-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 476938.20952353114, "yhat": 515126.5968547628, "yhat_upper": 556098.839701481}, {"Month": "2026-01-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 475322.1177990252, "yhat": 511893.4044604216, "yhat_upper": 552016.7422687968}, {"Month": "2026-02-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 461866.8251545782, "yhat": 503024.5468455779, "yhat_upper": 540330.6986024271}, {"Month": "2026-03-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 528195.9564348727, "yhat": 569856.267180632, "yhat_upper": 606222.3979635539}, {"Month": "2026-04-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 511017.6901726331, "yhat": 551238.6939577309, "yhat_upper": 591162.0759757047}, {"Month": "2026-05-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 460746.78993046866, "yhat": 502226.38447566977, "yhat_upper": 539667.7732260142}, {"Month": "2026-06-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 477674.7741954707, "yhat": 515942.59115567605, "yhat_upper": 555628.4607118994}, {"Month": "2026-07-01", "Island": "Fuerteventura", "RealPassengers": null, "yhat_lower": 545520.2044119345, "yhat": 587927.4396888101, "yhat_upper": 624748.7095241977}, {"Month": "2023-01-01", "Island": "Gran Canaria", "RealPassengers": 1186237.0, "yhat_lower": 1194612.025218617, "yhat": 1256436.9565596292, "yhat_upper": 1318139.4757378867}, {"Month": "2023-02-01", "Island": "Gran Canaria", "RealPassengers": 1141568.0, "yhat_lower": 1164179.0892790218, "yhat": 1227198.759390537, "yhat_upper": 1284865.6755624148}, {"Month": "2023-03-01", "Island": "Gran Canaria", "RealPassengers": 1263530.0, "yhat_lower": 1270779.587004351, "yhat": 1332329.2055972281, "yhat_upper": 1392930.6729615026}, {"Month": "2023-04-01", "Island": "Gran Canaria", "RealPassengers": 1154060.0, "yhat_lower": 1158205.2584128766, "yhat": 1216703.372958761, "yhat_upper": 1280177.5276589387}, {"Month": "2023-05-01", "Island": "Gran Canaria", "RealPassengers": 990880.0, "yhat_lower": 987615.628672394, "yhat": 1051261.1573534815, "yhat_upper": 1111817.399725537}, {"Month": "2023-06-01", "Island": "Gran Canaria", "RealPassengers": 983104.0, "yhat_lower": 990333.391652451, "yhat": 1052722.0593324662, "yhat_upper": 1114944.2071509475}, {"Month": "2023-07-01", "Island": "Gran Canaria", "RealPassengers": 1134408.0, "yhat_lower": 1123019.2914775584, "yhat": 1182134.0724182206, "yhat_upper": 1244959.5334943107}, {"Month": "2023-08-01", "Island": "Gran Canaria", "RealPassengers": 1123954.0, "yhat_lower": 1128391.344909711, "yhat": 1196406.1803171104, "yhat_upper": 1262631.6107773127}, {"Month": "2023-09-01", "Island": "Gran Canaria", "RealPassengers": 1042867.0, "yhat_lower": 1046469.0747411989, "yhat": 1104094.2636405984, "yhat_upper": 1167458.0678382637}, {"Month": "2023-10-01", "Island": "Gran Canaria", "RealPassengers": 1215099.0, "yhat_lower": 1173564.366800309, "yhat": 1239524.910986168, "yhat_upper": 1302405.2581280007}, {"Month": "2023-11-01", "Island": "Gran Canaria", "RealPassengers": 1251110.0, "yhat_lower": 1219472.4295602476, "yhat": 1286206.7759339707, "yhat_upper": 1350508.6288455601}, {"Month": "2023-12-01", "Island": "Gran Canaria", "RealPassengers": 1342382.0, "yhat_lower": 1259464.8395111745, "yhat": 1320416.98406809, "yhat_upper": 1381290.0655664783}, {"Month": "2024-01-01", "Island": "Gran Canaria", "RealPassengers": 1279885.0, "yhat_lower": 1209327.4888534958, "yhat": 1277288.8949806606, "yhat_upper": 1337366.6244408335}, {"Month": "2024-02-01", "Island": "Gran Canaria", "RealPassengers": 1311826.0, "yhat_lower": 1196034.7985577069, "yhat": 1260945.1072356296, "yhat_upper": 1324929.7450029682}, {"Month": "2024-03-01", "Island": "Gran Canaria", "RealPassengers": 1470950.0, "yhat_lower": 1323676.596479582, "yhat": 1386001.9276197886, "yhat_upper": 1450840.9818160287}, {"Month": "2024-04-01", "Island": "Gran Canaria", "RealPassengers": 1194493.0, "yhat_lower": 1155326.112483856, "yhat": 1214430.8245235793, "yhat_upper": 1275559.0645623184}, {"Month": "2024-05-01", "Island": "Gran Canaria", "RealPassengers": 1091352.0, "yhat_lower": 1024817.9377153344, "yhat": 1088811.4995324346, "yhat_upper": 1150287.2602639792}, {"Month": "2024-06-01", "Island": "Gran Canaria", "RealPassengers": 1102110.0, "yhat_lower": 1020584.936430086, "yhat": 1085860.1508849345, "yhat_upper": 1150684.1214499904}, {"Month": "2024-07-01", "Island": "Gran Canaria", "RealPassengers": 1204608.0, "yhat_lower": 1138094.7371085351, "yhat": 1196446.6623298596, "yhat_upper": 1263317.3699893362}, {"Month": "2024-08-01", "Island": "Gran Canaria", "RealPassengers": 1211290.0, "yhat_lower": 1158100.0646439428, "yhat": 1225632.2084520175, "yhat_upper": 1284509.149501636}, {"Month": "2024-09-01", "Island": "Gran Canaria", "RealPassengers": 1111821.0, "yhat_lower": 1065655.2825367542, "yhat": 1123613.0246669648, "yhat_upper": 1187199.9376352027}, {"Month": "2024-10-01", "Island": "Gran Canaria", "RealPassengers": 1296354.0, "yhat_lower": 1212918.5103601345, "yhat": 1272370.5624010933, "yhat_upper": 1332520.8384766658}, {"Month": "2024-11-01", "Island": "Gran Canaria", "RealPassengers": 1420818.0, "yhat_lower": 1259701.1303715787, "yhat": 1319355.6503534869, "yhat_upper": 1381886.639976737}, {"Month": "2024-12-01", "Island": "Gran Canaria", "RealPassengers": 1441889.0, "yhat_lower": 1269288.9590052348, "yhat": 1336558.0569436194, "yhat_upper": 1401733.143202164}, {"Month": "2025-01-01", "Island": "Gran Canaria", "RealPassengers": 1359806.0, "yhat_lower": 1249325.146971751, "yhat": 1316550.255146063, "yhat_upper": 1381935.421510233}, {"Month": "2025-02-01", "Island": "Gran Canaria", "RealPassengers": 1325399.0, "yhat_lower": 1198124.2483189825, "yhat": 1261328.7583295235, "yhat_upper": 1321059.2638759736}, {"Month": "2025-03-01", "Island": "Gran Canaria", "RealPassengers": 1481415.0, "yhat_lower": 1335801.3328319706, "yhat": 1402026.0069261156, "yhat_upper": 1465668.9238836404}, {"Month": "2025-04-01", "Island": "Gran Canaria", "RealPassengers": 1343928.0, "yhat_lower": 1186517.0742462077, "yhat": 1249023.8515263658, "yhat_upper": 1311477.275163408}, {"Month": "2025-05-01", "Island": "Gran Canaria", "RealPassengers": 1153055.0, "yhat_lower": 1049090.8379826632, "yhat": 1110237.208135607, "yhat_upper": 1176837.8650816665}, {"Month": "2025-06-01", "Island": "Gran Canaria", "RealPassengers": 1170127.0, "yhat_lower": 1047939.6237318582, "yhat": 1108575.3515413185, "yhat_upper": 1175119.9478215082}, {"Month": "2025-07-01", "Island": "Gran Canaria", "RealPassengers": 1277375.0, "yhat_lower": 1161237.1985195715, "yhat": 1225540.3698010847, "yhat_upper": 1290224.022932504}, {"Month": "2025-08-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1187559.5783389031, "yhat": 1249810.22538029, "yhat_upper": 1311329.9153531995}, {"Month": "2025-09-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1091501.754351828, "yhat": 1150969.0000812684, "yhat_upper": 1212046.0506447135}, {"Month": "2025-10-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1231129.9222129267, "yhat": 1295364.4040728887, "yhat_upper": 1358362.187081672}, {"Month": "2025-11-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1282641.6327968172, "yhat": 1342135.8343734127, "yhat_upper": 1403358.836765619}, {"Month": "2025-12-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1303631.138383872, "yhat": 1365057.942221529, "yhat_upper": 1426976.9288611026}, {"Month": "2026-01-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1273924.528866708, "yhat": 1337272.0558858565, "yhat_upper": 1399277.9847787754}, {"Month": "2026-02-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1234813.0219171513, "yhat": 1295071.2841018282, "yhat_upper": 1357038.4734734679}, {"Month": "2026-03-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1357198.0181567858, "yhat": 1418006.3152270692, "yhat_upper": 1476670.1990646697}, {"Month": "2026-04-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1219640.1292107282, "yhat": 1283656.6661025006, "yhat_upper": 1347249.355523851}, {"Month": "2026-05-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1066824.2164044622, "yhat": 1131592.5683162045, "yhat_upper": 1192937.4903456152}, {"Month": "2026-06-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1067526.784314118, "yhat": 1131402.0898876977, "yhat_upper": 1193140.565561825}, {"Month": "2026-07-01", "Island": "Gran Canaria", "RealPassengers": null, "yhat_lower": 1189779.8057118994, "yhat": 1254644.500369478, "yhat_upper": 1315260.4465870636}, {"Month": "2023-01-01", "Island": "La Gomera", "RealPassengers": 6726.0, "yhat_lower": 7084.637677684364, "yhat": 8003.237334262955, "yhat_upper": 8953.308696345084}, {"Month": "2023-02-01", "Island": "La Gomera", "RealPassengers": 6771.0, "yhat_lower": 7080.631899037906, "yhat": 7924.304416114671, "yhat_upper": 8782.467951487315}, {"Month": "2023-03-01", "Island": "La Gomera", "RealPassengers": 7901.0, "yhat_lower": 7559.089762269471, "yhat": 8456.181504243541, "yhat_upper": 9313.692267587117}, {"Month": "2023-04-01", "Island": "La Gomera", "RealPassengers": 10055.0, "yhat_lower": 8245.264095353139, "yhat": 9118.791082638914, "yhat_upper": 10000.949568371383}, {"Month": "2023-05-01", "Island": "La Gomera", "RealPassengers": 9327.0, "yhat_lower": 8161.44133427331, "yhat": 9047.175288512148, "yhat_upper": 9887.53090163674}, {"Month": "2023-06-01", "Island": "La Gomera", "RealPassengers": 8569.0, "yhat_lower": 7943.9920938785435, "yhat": 8885.309193866558, "yhat_upper": 9791.385043082686}, {"Month": "2023-07-01", "Island": "La Gomera", "RealPassengers": 11796.0, "yhat_lower": 9587.331390468564, "yhat": 10400.43965943054, "yhat_upper": 11359.68902478118}, {"Month": "2023-08-01", "Island": "La Gomera", "RealPassengers": 13198.0, "yhat_lower": 10714.352425333906, "yhat": 11618.035120554541, "yhat_upper": 12484.039618004916}, {"Month": "2023-09-01", "Island": "La Gomera", "RealPassengers": 10281.0, "yhat_lower": 9222.43194767732, "yhat": 10109.652315914185, "yhat_upper": 11012.447585894864}, {"Month": "2023-10-01", "Island": "La Gomera", "RealPassengers": 11083.0, "yhat_lower": 8787.50989059546, "yhat": 9661.795761409978, "yhat_upper": 10478.443195678617}, {"Month": "2023-11-01", "Island": "La Gomera", "RealPassengers": 8719.0, "yhat_lower": 7960.632629880746, "yhat": 8846.250791772361, "yhat_upper": 9706.306806980314}, {"Month": "2023-12-01", "Island": "La Gomera", "RealPassengers": 8691.0, "yhat_lower": 8280.165568973942, "yhat": 9078.828658340653, "yhat_upper": 9913.696106827378}, {"Month": "2024-01-01", "Island": "La Gomera", "RealPassengers": 7584.0, "yhat_lower": 7994.714525041185, "yhat": 8842.64029254832, "yhat_upper": 9727.313061167422}, {"Month": "2024-02-01", "Island": "La Gomera", "RealPassengers": 8424.0, "yhat_lower": 7987.766979569729, "yhat": 8896.022811877627, "yhat_upper": 9701.640358728288}, {"Month": "2024-03-01", "Island": "La Gomera", "RealPassengers": 10145.0, "yhat_lower": 8754.921227750105, "yhat": 9563.08945119645, "yhat_upper": 10515.120198815597}, {"Month": "2024-04-01", "Island": "La Gomera", "RealPassengers": 9400.0, "yhat_lower": 8666.017445964924, "yhat": 9586.393291077991, "yhat_upper": 10389.799102808223}, {"Month": "2024-05-01", "Island": "La Gomera", "RealPassengers": 10018.0, "yhat_lower": 9235.363414072717, "yhat": 10092.22595385257, "yhat_upper": 11003.563080845637}, {"Month": "2024-06-01", "Island": "La Gomera", "RealPassengers": 9945.0, "yhat_lower": 9411.261865128656, "yhat": 10285.161158791134, "yhat_upper": 11137.8530175268}, {"Month": "2024-07-01", "Island": "La Gomera", "RealPassengers": 11773.0, "yhat_lower": 10417.057473168812, "yhat": 11236.621367573074, "yhat_upper": 12123.627948165486}, {"Month": "2024-08-01", "Island": "La Gomera", "RealPassengers": 13069.0, "yhat_lower": 11014.448150876864, "yhat": 11817.928520434532, "yhat_upper": 12685.038290613305}, {"Month": "2024-09-01", "Island": "La Gomera", "RealPassengers": 10719.0, "yhat_lower": 9936.803480648055, "yhat": 10840.590579455233, "yhat_upper": 11709.241740889454}, {"Month": "2024-10-01", "Island": "La Gomera", "RealPassengers": 10080.0, "yhat_lower": 9626.943159107732, "yhat": 10505.514435489358, "yhat_upper": 11425.53367276312}, {"Month": "2024-11-01", "Island": "La Gomera", "RealPassengers": 9792.0, "yhat_lower": 9256.597183966607, "yhat": 10096.060149416766, "yhat_upper": 10962.20656137999}, {"Month": "2024-12-01", "Island": "La Gomera", "RealPassengers": 9572.0, "yhat_lower": 9090.420506529139, "yhat": 9989.148993757846, "yhat_upper": 10820.761774911582}, {"Month": "2025-01-01", "Island": "La Gomera", "RealPassengers": 9081.0, "yhat_lower": 8768.43357693971, "yhat": 9675.742648860147, "yhat_upper": 10647.285965591944}, {"Month": "2025-02-01", "Island": "La Gomera", "RealPassengers": 8340.0, "yhat_lower": 8433.05185271512, "yhat": 9323.287819358024, "yhat_upper": 10200.612171105116}, {"Month": "2025-03-01", "Island": "La Gomera", "RealPassengers": 9486.0, "yhat_lower": 9438.320075315089, "yhat": 10308.877528367913, "yhat_upper": 11199.968810582386}, {"Month": "2025-04-01", "Island": "La Gomera", "RealPassengers": 10752.0, "yhat_lower": 9706.35054444348, "yhat": 10545.714187480371, "yhat_upper": 11381.422047613387}, {"Month": "2025-05-01", "Island": "La Gomera", "RealPassengers": 11338.0, "yhat_lower": 9961.451638859297, "yhat": 10861.696819437451, "yhat_upper": 11775.230598849885}, {"Month": "2025-06-01", "Island": "La Gomera", "RealPassengers": 10830.0, "yhat_lower": 10011.23371800775, "yhat": 10930.85233689974, "yhat_upper": 11735.554387341546}, {"Month": "2025-07-01", "Island": "La Gomera", "RealPassengers": 12265.0, "yhat_lower": 11205.090345841265, "yhat": 12065.886007111274, "yhat_upper": 12910.890683466723}, {"Month": "2025-08-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 12004.910527133834, "yhat": 12864.406784100887, "yhat_upper": 13764.765699619811}, {"Month": "2025-09-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 10882.744014977066, "yhat": 11714.216848388154, "yhat_upper": 12591.048451053164}, {"Month": "2025-10-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 10506.55423209589, "yhat": 11341.848708915919, "yhat_upper": 12274.585145313209}, {"Month": "2025-11-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 9862.365995757264, "yhat": 10794.134105306593, "yhat_upper": 11696.752049149658}, {"Month": "2025-12-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 9965.093734549735, "yhat": 10797.020079511944, "yhat_upper": 11674.348248357235}, {"Month": "2026-01-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 9640.867303116607, "yhat": 10508.838218635348, "yhat_upper": 11387.466912622453}, {"Month": "2026-02-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 9459.464837646046, "yhat": 10294.583404510082, "yhat_upper": 11200.826533420723}, {"Month": "2026-03-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 10196.053871432257, "yhat": 11053.852781074229, "yhat_upper": 11969.715418708432}, {"Month": "2026-04-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 10679.251766016781, "yhat": 11503.835965937558, "yhat_upper": 12377.364630393733}, {"Month": "2026-05-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 10720.47426690488, "yhat": 11627.263054684672, "yhat_upper": 12456.440868341953}, {"Month": "2026-06-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 10682.861237862679, "yhat": 11578.110184657893, "yhat_upper": 12398.752124048498}, {"Month": "2026-07-01", "Island": "La Gomera", "RealPassengers": null, "yhat_lower": 12034.90759306683, "yhat": 12901.122590936642, "yhat_upper": 13767.876868713172}, {"Month": "2023-01-01", "Island": "La Palma", "RealPassengers": 100044.0, "yhat_lower": 108056.3876194134, "yhat": 115865.19394301217, "yhat_upper": 124126.27801958781}, {"Month": "2023-02-01", "Island": "La Palma", "RealPassengers": 101521.0, "yhat_lower": 107661.92409586177, "yhat": 114605.8631879912, "yhat_upper": 122086.00706279425}, {"Month": "2023-03-01", "Island": "La Palma", "RealPassengers": 117772.0, "yhat_lower": 120188.38020731905, "yhat": 127352.9260411358, "yhat_upper": 134713.73226015465}, {"Month": "2023-04-01", "Island": "La Palma", "RealPassengers": 114605.0, "yhat_lower": 116077.11102297199, "yhat": 123803.42651971543, "yhat_upper": 131236.70578044403}, {"Month": "2023-05-01", "Island": "La Palma", "RealPassengers": 107116.0, "yhat_lower": 107635.13871487418, "yhat": 115248.88073834611, "yhat_upper": 122660.87018968114}, {"Month": "2023-06-01", "Island": "La Palma", "RealPassengers": 101295.0, "yhat_lower": 104763.099623574, "yhat": 112271.79627914337, "yhat_upper": 120367.82617264433}, {"Month": "2023-07-01", "Island": "La Palma", "RealPassengers": 124181.0, "yhat_lower": 124557.55425750901, "yhat": 131798.0233767379, "yhat_upper": 139482.23203723607}, {"Month": "2023-08-01", "Island": "La Palma", "RealPassengers": 122396.0, "yhat_lower": 126673.03582823667, "yhat": 133723.3048914847, "yhat_upper": 141069.37818606873}, {"Month": "2023-09-01", "Island": "La Palma", "RealPassengers": 113578.0, "yhat_lower": 111571.80386855156, "yhat": 118958.13726610006, "yhat_upper": 125917.41010978686}, {"Month": "2023-10-01", "Island": "La Palma", "RealPassengers": 114177.0, "yhat_lower": 112739.67315701926, "yhat": 120214.28465639657, "yhat_upper": 127633.96853001032}, {"Month": "2023-11-01", "Island": "La Palma", "RealPassengers": 119245.0, "yhat_lower": 112777.16003454177, "yhat": 119946.52181753956, "yhat_upper": 126830.93051678165}, {"Month": "2023-12-01", "Island": "La Palma", "RealPassengers": 127759.0, "yhat_lower": 116753.98371793628, "yhat": 124030.55512133271, "yhat_upper": 131581.10735054148}, {"Month": "2024-01-01", "Island": "La Palma", "RealPassengers": 114644.0, "yhat_lower": 108413.09657434758, "yhat": 115729.60803937333, "yhat_upper": 123020.35056998726}, {"Month": "2024-02-01", "Island": "La Palma", "RealPassengers": 117931.0, "yhat_lower": 109348.61911823525, "yhat": 116575.77220719404, "yhat_upper": 123928.57914489262}, {"Month": "2024-03-01", "Island": "La Palma", "RealPassengers": 138256.0, "yhat_lower": 123972.22429789584, "yhat": 131414.85925217904, "yhat_upper": 138788.9400703345}, {"Month": "2024-04-01", "Island": "La Palma", "RealPassengers": 117735.0, "yhat_lower": 113887.71850756725, "yhat": 121088.27711790371, "yhat_upper": 128579.04773530297}, {"Month": "2024-05-01", "Island": "La Palma", "RealPassengers": 117514.0, "yhat_lower": 109862.71022535086, "yhat": 117066.18332644258, "yhat_upper": 124967.9969930279}, {"Month": "2024-06-01", "Island": "La Palma", "RealPassengers": 118265.0, "yhat_lower": 107286.62005158013, "yhat": 115273.36300738515, "yhat_upper": 122264.43812935214}, {"Month": "2024-07-01", "Island": "La Palma", "RealPassengers": 130349.0, "yhat_lower": 122471.91445825805, "yhat": 129833.159712299, "yhat_upper": 137589.8935672372}, {"Month": "2024-08-01", "Island": "La Palma", "RealPassengers": 137839.0, "yhat_lower": 130183.60085525944, "yhat": 137537.79260068396, "yhat_upper": 145116.21475587945}, {"Month": "2024-09-01", "Island": "La Palma", "RealPassengers": 119225.0, "yhat_lower": 112557.12435531053, "yhat": 119672.6842150196, "yhat_upper": 127109.66477049692}, {"Month": "2024-10-01", "Island": "La Palma", "RealPassengers": 120174.0, "yhat_lower": 110487.95445837504, "yhat": 118118.17636148477, "yhat_upper": 125486.83690171035}, {"Month": "2024-11-01", "Island": "La Palma", "RealPassengers": 128357.0, "yhat_lower": 113851.72995140575, "yhat": 121491.73039235201, "yhat_upper": 129611.84275516435}, {"Month": "2024-12-01", "Island": "La Palma", "RealPassengers": 131924.0, "yhat_lower": 117444.4951625052, "yhat": 125046.9203904791, "yhat_upper": 132285.72450875936}, {"Month": "2025-01-01", "Island": "La Palma", "RealPassengers": 125639.0, "yhat_lower": 111685.96984977783, "yhat": 119475.66420805789, "yhat_upper": 126671.7966920463}, {"Month": "2025-02-01", "Island": "La Palma", "RealPassengers": 117926.0, "yhat_lower": 106536.80970021499, "yhat": 113986.55427027479, "yhat_upper": 121858.12788667898}, {"Month": "2025-03-01", "Island": "La Palma", "RealPassengers": 139843.0, "yhat_lower": 123417.27132923654, "yhat": 131159.2220585965, "yhat_upper": 138437.24176784678}, {"Month": "2025-04-01", "Island": "La Palma", "RealPassengers": 128904.0, "yhat_lower": 116078.92274038111, "yhat": 123085.91922797992, "yhat_upper": 130288.34381383806}, {"Month": "2025-05-01", "Island": "La Palma", "RealPassengers": 117374.0, "yhat_lower": 110065.8501523349, "yhat": 117576.53796632166, "yhat_upper": 124958.24509521438}, {"Month": "2025-06-01", "Island": "La Palma", "RealPassengers": 116439.0, "yhat_lower": 107594.38523064554, "yhat": 115357.15317237777, "yhat_upper": 122751.84573028315}, {"Month": "2025-07-01", "Island": "La Palma", "RealPassengers": 133873.0, "yhat_lower": 125014.62171988517, "yhat": 131591.30466603293, "yhat_upper": 138762.51506055135}, {"Month": "2025-08-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 129910.73763964478, "yhat": 137373.56971881026, "yhat_upper": 144726.09806354975}, {"Month": "2025-09-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 113603.96490389507, "yhat": 120505.53310120807, "yhat_upper": 128083.09210025062}, {"Month": "2025-10-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 112464.91880304238, "yhat": 119916.03845560839, "yhat_upper": 127576.35801855919}, {"Month": "2025-11-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 114628.98020894866, "yhat": 122091.08308595153, "yhat_upper": 129599.34144586891}, {"Month": "2025-12-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 118019.224252954, "yhat": 125817.88690897869, "yhat_upper": 133463.73510056818}, {"Month": "2026-01-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 111670.30436511339, "yhat": 119308.95510542256, "yhat_upper": 126640.96812805398}, {"Month": "2026-02-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 108847.37868609716, "yhat": 115937.25198907252, "yhat_upper": 123511.81083833486}, {"Month": "2026-03-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 123477.79585167824, "yhat": 130902.42296729004, "yhat_upper": 138772.66385399102}, {"Month": "2026-04-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 117537.24462646605, "yhat": 125088.66626758757, "yhat_upper": 132716.97539955858}, {"Month": "2026-05-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 110786.76878841482, "yhat": 118068.04067077782, "yhat_upper": 125458.63941883702}, {"Month": "2026-06-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 107662.6196842944, "yhat": 115453.8108668171, "yhat_upper": 122857.48872347588}, {"Month": "2026-07-01", "Island": "La Palma", "RealPassengers": null, "yhat_lower": 125964.77184078027, "yhat": 133343.88534807274, "yhat_upper": 141007.99475746515}, {"Month": "2023-01-01", "Island": "Lanzarote", "RealPassengers": 622280.0, "yhat_lower": 602222.9067867232, "yhat": 638220.2511016398, "yhat_upper": 673322.982847791}, {"Month": "2023-02-01", "Island": "Lanzarote", "RealPassengers": 616311.0, "yhat_lower": 600960.4583619108, "yhat": 635028.2677121822, "yhat_upper": 673915.3570030978}, {"Month": "2023-03-01", "Island": "Lanzarote", "RealPassengers": 686848.0, "yhat_lower": 671921.3983667165, "yhat": 706039.9611970162, "yhat_upper": 740019.0008924031}, {"Month": "2023-04-01", "Island": "Lanzarote", "RealPassengers": 688726.0, "yhat_lower": 664015.6293298139, "yhat": 698015.2073372132, "yhat_upper": 733129.6842837916}, {"Month": "2023-05-01", "Island": "Lanzarote", "RealPassengers": 641151.0, "yhat_lower": 604459.4733232415, "yhat": 640188.6908361543, "yhat_upper": 672876.6802773112}, {"Month": "2023-06-01", "Island": "Lanzarote", "RealPassengers": 653128.0, "yhat_lower": 630360.452710307, "yhat": 663963.3779117499, "yhat_upper": 697443.0222779397}, {"Month": "2023-07-01", "Island": "Lanzarote", "RealPassengers": 731858.0, "yhat_lower": 713762.7852361631, "yhat": 749021.9919572516, "yhat_upper": 787529.3426481108}, {"Month": "2023-08-01", "Island": "Lanzarote", "RealPassengers": 753134.0, "yhat_lower": 758783.2331641645, "yhat": 793674.9524598484, "yhat_upper": 826756.2675574207}, {"Month": "2023-09-01", "Island": "Lanzarote", "RealPassengers": 664282.0, "yhat_lower": 666164.3077519793, "yhat": 700586.8917992666, "yhat_upper": 736114.428191328}, {"Month": "2023-10-01", "Island": "Lanzarote", "RealPassengers": 718435.0, "yhat_lower": 687994.1496999018, "yhat": 724750.6912374104, "yhat_upper": 760044.6514861328}, {"Month": "2023-11-01", "Island": "Lanzarote", "RealPassengers": 684639.0, "yhat_lower": 644619.2647798329, "yhat": 678416.0531395914, "yhat_upper": 715052.8611373792}, {"Month": "2023-12-01", "Island": "Lanzarote", "RealPassengers": 698791.0, "yhat_lower": 630667.8004922158, "yhat": 665056.6554450918, "yhat_upper": 699375.3473360934}, {"Month": "2024-01-01", "Island": "Lanzarote", "RealPassengers": 666579.0, "yhat_lower": 620133.3108634612, "yhat": 655866.2365539634, "yhat_upper": 687259.1252420403}, {"Month": "2024-02-01", "Island": "Lanzarote", "RealPassengers": 695830.0, "yhat_lower": 618873.8474409736, "yhat": 656533.203503854, "yhat_upper": 690792.5840204391}, {"Month": "2024-03-01", "Island": "Lanzarote", "RealPassengers": 787984.0, "yhat_lower": 703437.3191651596, "yhat": 738239.1045325121, "yhat_upper": 774629.7477730153}, {"Month": "2024-04-01", "Island": "Lanzarote", "RealPassengers": 705044.0, "yhat_lower": 668232.3253618062, "yhat": 703070.45869773, "yhat_upper": 739003.6412250141}, {"Month": "2024-05-01", "Island": "Lanzarote", "RealPassengers": 660619.0, "yhat_lower": 628938.1924812627, "yhat": 663074.3833405472, "yhat_upper": 703385.9813587088}, {"Month": "2024-06-01", "Island": "Lanzarote", "RealPassengers": 685594.0, "yhat_lower": 649013.3593146865, "yhat": 685230.1681588559, "yhat_upper": 717428.1536084588}, {"Month": "2024-07-01", "Island": "Lanzarote", "RealPassengers": 740871.0, "yhat_lower": 733074.1006080292, "yhat": 770077.1477562886, "yhat_upper": 804827.6926338648}, {"Month": "2024-08-01", "Island": "Lanzarote", "RealPassengers": 791517.0, "yhat_lower": 775780.0888488571, "yhat": 813457.4487032475, "yhat_upper": 846050.5821704824}, {"Month": "2024-09-01", "Island": "Lanzarote", "RealPassengers": 703229.0, "yhat_lower": 685839.5710292212, "yhat": 719827.7934174184, "yhat_upper": 752849.5074058768}, {"Month": "2024-10-01", "Island": "Lanzarote", "RealPassengers": 755192.0, "yhat_lower": 704582.9740508295, "yhat": 738321.230529683, "yhat_upper": 773494.3619405524}, {"Month": "2024-11-01", "Island": "Lanzarote", "RealPassengers": 744759.0, "yhat_lower": 662813.0262301726, "yhat": 696595.2176520646, "yhat_upper": 732272.9374639209}, {"Month": "2024-12-01", "Island": "Lanzarote", "RealPassengers": 730312.0, "yhat_lower": 649808.7238129596, "yhat": 686053.4698198739, "yhat_upper": 721662.6261865968}, {"Month": "2025-01-01", "Island": "Lanzarote", "RealPassengers": 698320.0, "yhat_lower": 641563.1494293853, "yhat": 678948.1194808558, "yhat_upper": 712644.8803442137}, {"Month": "2025-02-01", "Island": "Lanzarote", "RealPassengers": 703395.0, "yhat_lower": 634177.7020094665, "yhat": 667934.6037641789, "yhat_upper": 700906.6116753608}, {"Month": "2025-03-01", "Island": "Lanzarote", "RealPassengers": 796051.0, "yhat_lower": 718129.0340200177, "yhat": 752798.024612384, "yhat_upper": 788653.9924012517}, {"Month": "2025-04-01", "Island": "Lanzarote", "RealPassengers": 742514.0, "yhat_lower": 690611.9323116052, "yhat": 726662.854660752, "yhat_upper": 762209.3605864306}, {"Month": "2025-05-01", "Island": "Lanzarote", "RealPassengers": 686664.0, "yhat_lower": 645835.4318702847, "yhat": 680793.5881524748, "yhat_upper": 714662.0579797183}, {"Month": "2025-06-01", "Island": "Lanzarote", "RealPassengers": 712586.0, "yhat_lower": 669799.2624603522, "yhat": 703438.2955581577, "yhat_upper": 738531.8077681285}, {"Month": "2025-07-01", "Island": "Lanzarote", "RealPassengers": 795733.0, "yhat_lower": 750212.0259551341, "yhat": 788367.7306275388, "yhat_upper": 822008.0682063478}, {"Month": "2025-08-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 795996.2389814589, "yhat": 832178.563784714, "yhat_upper": 865476.5550774822}, {"Month": "2025-09-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 705285.5277647907, "yhat": 738667.4311994181, "yhat_upper": 774476.0473100498}, {"Month": "2025-10-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 722292.5469710182, "yhat": 759111.5680867136, "yhat_upper": 792998.4606139961}, {"Month": "2025-11-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 681951.7097929002, "yhat": 715872.5149707112, "yhat_upper": 751080.6513349565}, {"Month": "2025-12-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 669377.9168236525, "yhat": 704378.4545209694, "yhat_upper": 739350.3586841541}, {"Month": "2026-01-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 661227.6857420808, "yhat": 696524.07210545, "yhat_upper": 731458.6559523128}, {"Month": "2026-02-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 657264.3033925194, "yhat": 689437.4768251609, "yhat_upper": 727010.8416562851}, {"Month": "2026-03-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 733246.539375206, "yhat": 767368.7170761344, "yhat_upper": 803815.7553084361}, {"Month": "2026-04-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 716379.3507967298, "yhat": 750283.6682803013, "yhat_upper": 785227.3508565034}, {"Month": "2026-05-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 662257.2126721971, "yhat": 698469.5030889211, "yhat_upper": 732741.3717638702}, {"Month": "2026-06-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 690324.3570551152, "yhat": 721653.867779342, "yhat_upper": 755427.7122125099}, {"Month": "2026-07-01", "Island": "Lanzarote", "RealPassengers": null, "yhat_lower": 770976.4488070322, "yhat": 806653.9505536677, "yhat_upper": 839998.5611903715}, {"Month": "2023-01-01", "Island": "Tenerife", "RealPassengers": 1518260.0, "yhat_lower": 1510848.408544936, "yhat": 1584065.665540472, "yhat_upper": 1660522.1938234866}, {"Month": "2023-02-01", "Island": "Tenerife", "RealPassengers": 1467072.0, "yhat_lower": 1472082.573778437, "yhat": 1556290.0441602021, "yhat_upper": 1627720.0759246165}, {"Month": "2023-03-01", "Island": "Tenerife", "RealPassengers": 1638458.0, "yhat_lower": 1615829.521806626, "yhat": 1692077.885647088, "yhat_upper": 1770411.4199185674}, {"Month": "2023-04-01", "Island": "Tenerife", "RealPassengers": 1523158.0, "yhat_lower": 1539625.4006511508, "yhat": 1614704.3665761794, "yhat_upper": 1691444.5325640785}, {"Month": "2023-05-01", "Island": "Tenerife", "RealPassengers": 1381634.0, "yhat_lower": 1376251.9607133754, "yhat": 1450577.2011996247, "yhat_upper": 1533236.3718408954}, {"Month": "2023-06-01", "Island": "Tenerife", "RealPassengers": 1378125.0, "yhat_lower": 1387444.4330509405, "yhat": 1466302.4441319662, "yhat_upper": 1543711.2232880502}, {"Month": "2023-07-01", "Island": "Tenerife", "RealPassengers": 1511930.0, "yhat_lower": 1528986.0741448812, "yhat": 1609618.9800586281, "yhat_upper": 1685860.0480718806}, {"Month": "2023-08-01", "Island": "Tenerife", "RealPassengers": 1513985.0, "yhat_lower": 1590580.3054670205, "yhat": 1662365.749136599, "yhat_upper": 1742349.6174755737}, {"Month": "2023-09-01", "Island": "Tenerife", "RealPassengers": 1429618.0, "yhat_lower": 1460522.0690122298, "yhat": 1533522.9897927784, "yhat_upper": 1607917.5104555036}, {"Month": "2023-10-01", "Island": "Tenerife", "RealPassengers": 1598627.0, "yhat_lower": 1579700.1226510035, "yhat": 1655850.3083635103, "yhat_upper": 1728292.5301493236}, {"Month": "2023-11-01", "Island": "Tenerife", "RealPassengers": 1662753.0, "yhat_lower": 1573214.494039236, "yhat": 1646113.6999800017, "yhat_upper": 1722838.9665944448}, {"Month": "2023-12-01", "Island": "Tenerife", "RealPassengers": 1716655.0, "yhat_lower": 1582099.7725805363, "yhat": 1660376.264509075, "yhat_upper": 1734581.9238508134}, {"Month": "2024-01-01", "Island": "Tenerife", "RealPassengers": 1664631.0, "yhat_lower": 1559816.8476276041, "yhat": 1634340.7799588756, "yhat_upper": 1709800.8810286573}, {"Month": "2024-02-01", "Island": "Tenerife", "RealPassengers": 1686021.0, "yhat_lower": 1544621.6202089193, "yhat": 1619531.0557237503, "yhat_upper": 1694276.5085247585}, {"Month": "2024-03-01", "Island": "Tenerife", "RealPassengers": 1892653.0, "yhat_lower": 1702889.6336891653, "yhat": 1777283.1351946169, "yhat_upper": 1853313.6337583181}, {"Month": "2024-04-01", "Island": "Tenerife", "RealPassengers": 1631579.0, "yhat_lower": 1592766.9640400824, "yhat": 1661302.600588046, "yhat_upper": 1736688.682373811}, {"Month": "2024-05-01", "Island": "Tenerife", "RealPassengers": 1547182.0, "yhat_lower": 1425317.2313623729, "yhat": 1502751.6773158195, "yhat_upper": 1577514.530049661}, {"Month": "2024-06-01", "Island": "Tenerife", "RealPassengers": 1556393.0, "yhat_lower": 1436850.8140766628, "yhat": 1510493.3178615652, "yhat_upper": 1587983.4342260351}, {"Month": "2024-07-01", "Island": "Tenerife", "RealPassengers": 1671414.0, "yhat_lower": 1578205.3121227296, "yhat": 1654896.2586396274, "yhat_upper": 1731955.3082898778}, {"Month": "2024-08-01", "Island": "Tenerife", "RealPassengers": 1711602.0, "yhat_lower": 1662202.6704751328, "yhat": 1735288.2502458503, "yhat_upper": 1814194.2874700753}, {"Month": "2024-09-01", "Island": "Tenerife", "RealPassengers": 1579657.0, "yhat_lower": 1502422.0445126551, "yhat": 1583277.93266305, "yhat_upper": 1655013.8141260238}, {"Month": "2024-10-01", "Island": "Tenerife", "RealPassengers": 1731945.0, "yhat_lower": 1621793.7627224638, "yhat": 1704325.192157794, "yhat_upper": 1780803.555672848}, {"Month": "2024-11-01", "Island": "Tenerife", "RealPassengers": 1846457.0, "yhat_lower": 1627792.5474132092, "yhat": 1701583.9101670173, "yhat_upper": 1779538.5669078955}, {"Month": "2024-12-01", "Island": "Tenerife", "RealPassengers": 1851432.0, "yhat_lower": 1636723.3650496008, "yhat": 1715085.4314573826, "yhat_upper": 1797970.0384399246}, {"Month": "2025-01-01", "Island": "Tenerife", "RealPassengers": 1794473.0, "yhat_lower": 1615970.6342679171, "yhat": 1694983.7862382727, "yhat_upper": 1770622.7393376834}, {"Month": "2025-02-01", "Island": "Tenerife", "RealPassengers": 1738767.0, "yhat_lower": 1557742.339267645, "yhat": 1640782.7376052246, "yhat_upper": 1707552.1786980045}, {"Month": "2025-03-01", "Island": "Tenerife", "RealPassengers": 1947827.0, "yhat_lower": 1737267.5117749067, "yhat": 1819386.7064839625, "yhat_upper": 1893152.6043518803}, {"Month": "2025-04-01", "Island": "Tenerife", "RealPassengers": 1743319.0, "yhat_lower": 1640254.350300751, "yhat": 1716023.2316358297, "yhat_upper": 1792286.5553541086}, {"Month": "2025-05-01", "Island": "Tenerife", "RealPassengers": 1593967.0, "yhat_lower": 1480335.0566416404, "yhat": 1555619.9317066295, "yhat_upper": 1633229.4672775045}, {"Month": "2025-06-01", "Island": "Tenerife", "RealPassengers": 1604957.0, "yhat_lower": 1493982.468582268, "yhat": 1566070.2704773257, "yhat_upper": 1640579.5845766198}, {"Month": "2025-07-01", "Island": "Tenerife", "RealPassengers": 1737290.0, "yhat_lower": 1641090.542506314, "yhat": 1710322.8486772832, "yhat_upper": 1786124.3545802454}, {"Month": "2025-08-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1702510.0394512778, "yhat": 1781425.2364577192, "yhat_upper": 1864300.6648627685}, {"Month": "2025-09-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1560716.9077544075, "yhat": 1636919.153704766, "yhat_upper": 1709890.5010408543}, {"Month": "2025-10-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1683820.8263649424, "yhat": 1758557.9378501845, "yhat_upper": 1836229.511903137}, {"Month": "2025-11-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1678649.5440428895, "yhat": 1753483.2578408867, "yhat_upper": 1829161.9071698843}, {"Month": "2025-12-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1686994.5678439527, "yhat": 1767211.9661237923, "yhat_upper": 1845555.117961195}, {"Month": "2026-01-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1669509.7271066883, "yhat": 1745008.7331746938, "yhat_upper": 1825862.110288088}, {"Month": "2026-02-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1628365.5948993827, "yhat": 1704098.9858755053, "yhat_upper": 1777230.5991812942}, {"Month": "2026-03-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1785524.4544973571, "yhat": 1861345.9373307412, "yhat_upper": 1935211.0127899921}, {"Month": "2026-04-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1694099.83460865, "yhat": 1770853.988750012, "yhat_upper": 1847359.3618927463}, {"Month": "2026-05-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1528525.223762853, "yhat": 1608592.9149508707, "yhat_upper": 1686266.8541567798}, {"Month": "2026-06-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1542597.4185500646, "yhat": 1621706.010708537, "yhat_upper": 1694042.7159086098}, {"Month": "2026-07-01", "Island": "Tenerife", "RealPassengers": null, "yhat_lower": 1694469.0928282817, "yhat": 1765595.781432057, "yhat_upper": 1839437.9229810906}];
+const plotDiv = document.getElementById("prediction_graph_div");
+
+function getUniqueIslands() {
+  const islands = rawData
+    .map(d => d.Island)
+    .filter((v, i, arr) => arr.indexOf(v) === i)
+    .sort((a, b) => a - b);
+  return islands;
+}
+
+function populateIslandSelect() {
+  const select = document.getElementById('islandSelect');
+  select.innerHTML = '';
+
+  const islands = getUniqueIslands();
+  islands.forEach(island => {
+    const optionElement = document.createElement('option');
+    optionElement.value = island.toString();
+    optionElement.textContent = `${island}`;
+    select.appendChild(optionElement);
+  });
+}
+
+function initializeControls() {
+  populateIslandSelect();
+
+  // Add event listeners
+  document.getElementById('islandSelect').addEventListener('change', updatePlot);
+  document.getElementById('resetBtn').addEventListener('click', resetFilters);
+
+  // Initial plot
+  updatePlot();
+}
+
+function resetFilters() {
+  const islands = getUniqueIslands();
+  const firstIsland = islands.length > 0 ? islands[0].toString() : 'Canary Islands';
+  document.getElementById('islandSelect').value = firstIsland;
+  updatePlot();
+}
+
+function updatePlot() {
+  const selectedIsland = document.getElementById('islandSelect').value;
+
+  // Filter data based on selection
+  let filteredData = rawData;
+  if (selectedIsland !== 'All') {
+    filteredData = rawData.filter(d => d.Island.toString() === selectedIsland);
+  }
+
+  if (filteredData.length === 0) {
+    document.getElementById('emptyNote').style.display = 'block';
+    document.getElementById('summaryDiv').style.display = 'none';
+    Plotly.react(plotDiv, [], {});
+    return;
+  }
+
+  document.getElementById('emptyNote').style.display = 'none';
+
+  // Sort by month
+  filteredData.sort((a, b) => new Date(a.Month) - new Date(b.Month));
+
+  const months = filteredData.map(d => d.Month.substring(0, 7)); // YYYY-MM format
+  const realPassengers = filteredData.map(d => d.RealPassengers);
+  const yhat = filteredData.map(d => d.yhat);
+  const yhatLower = filteredData.map(d => d.yhat_lower);
+  const yhatUpper = filteredData.map(d => d.yhat_upper);
+
+  // Calculate summary statistics for real passengers
+  const totalReal = realPassengers.reduce((sum, val) => sum + val, 0);
+  const avgReal = totalReal / realPassengers.length;
+  const maxReal = Math.max(...realPassengers);
+  const minReal = Math.min(...realPassengers);
+
+  // Update summary
+  const summaryDiv = document.getElementById('summaryDiv');
+  summaryDiv.style.display = 'block';
+  let summaryText = `<strong>Real Passengers Summary:</strong> Total: ${totalReal.toLocaleString()} | 
+    Average per month: ${avgReal.toFixed(0)} | 
+    Max: ${maxReal.toLocaleString()} | 
+    Min: ${minReal.toLocaleString()} | 
+    Data points: ${months.length} months`;
+
+  if (selectedIsland !== 'All') {
+    summaryText += ` | Island: ${selectedIsland}`;
+  }
+
+  summaryDiv.innerHTML = summaryText;
+
+  const traces = [];
+
+  // Confidence band (fill between upper and lower bounds)
+  traces.push({
+    type: 'scatter',
+    mode: 'lines',
+    x: months,
+    y: yhatUpper,
+    fill: 'tonexty',
+    fillcolor: 'rgba(128, 128, 128, 0.2)',
+    line: { color: 'transparent' },
+    name: 'Confidence Band',
+    hovertemplate: '<b>%{x}</b><br>Upper Bound Prediction: %{y:,.0f}<extra></extra>',
+    showlegend: false
+  });
+
+  traces.push({
+    type: 'scatter',
+    mode: 'lines',
+    x: months,
+    y: yhatLower,
+    fill: 'tonexty',
+    fillcolor: 'rgba(128, 128, 128, 0.2)',
+    line: { color: 'transparent' },
+    name: 'Confidence Band',
+    hovertemplate: '<b>%{x}</b><br>Lower Bound Prediction: %{y:,.0f}<extra></extra>'
+  });
+
+  // Real passengers line
+  traces.push({
+    type: 'scatter',
+    mode: 'lines+markers',
+    x: months,
+    y: realPassengers,
+    line: {
+      color: '#3498db',
+      width: 3
+    },
+    marker: {
+      color: '#2980b9',
+      size: 4
+    },
+    name: 'Real Passengers',
+    hovertemplate: '<b>%{x}</b><br>Real Passengers: %{y:,.0f}<extra></extra>'
+  });
+
+  // Prediction line
+  traces.push({
+    type: 'scatter',
+    mode: 'lines+markers',
+    x: months,
+    y: yhat,
+    line: {
+      color: '#e74c3c',
+      width: 3,
+      dash: 'dash'
+    },
+    marker: {
+      color: '#c0392b',
+      size: 4
+    },
+    name: 'Prediction',
+    hovertemplate: '<b>%{x}</b><br>Prediction: %{y:,.0f}<extra></extra>'
+  });
+
+  // Upper bound line
+  traces.push({
+    type: 'scatter',
+    mode: 'lines',
+    x: months,
+    y: yhatUpper,
+    line: {
+      color: '#27ae60',
+      width: 2,
+      dash: 'dot'
+    },
+    name: 'Upper Bound Prediction',
+    hovertemplate: '<b>%{x}</b><br>Upper Bound Prediction: %{y:,.0f}<extra></extra>'
+  });
+
+  // Lower bound line
+  traces.push({
+    type: 'scatter',
+    mode: 'lines',
+    x: months,
+    y: yhatLower,
+    line: {
+      color: '#27ae60',
+      width: 2,
+      dash: 'dot'
+    },
+    name: 'Lower Bound Prediction',
+    hovertemplate: '<b>%{x}</b><br>Lower Bound Prediction: %{y:,.0f}<extra></extra>'
+  });
+
+  // Create layout
+  let title = 'Passenger Predictions vs Reality';
+  if (selectedIsland !== 'Canary Islands') {
+    title += ` - ${selectedIsland}`;
+  } else {
+    title += ` - All islands`
+  }
+
+  const layout = {
+    title: {
+      text: title,
+      font: { size: 18, color: '#2c3e50' }
+    },
+    xaxis: {
+      title: 'Month',
+      type: 'category',
+      tickangle: -45,
+      gridcolor: '#ecf0f1'
+    },
+    yaxis: {
+      title: 'Number of Passengers',
+      gridcolor: '#ecf0f1',
+      tickformat: ',.0f'
+    },
+    plot_bgcolor: 'white',
+    paper_bgcolor: 'white',
+    margin: {
+      t: 60,
+      b: 100,
+      l: 100,
+      r: 40
+    },
+    hovermode: 'x unified',
+    legend: {
+      orientation: 'h',
+      y: -0.2,
+      x: 0.5,
+      xanchor: 'center'
+    }
+  };
+
+  const config = {
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
+    displaylogo: false
+  };
+
+  Plotly.react(plotDiv, traces, layout, config);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initializeControls);
+</script>
+</body>
+</html>
