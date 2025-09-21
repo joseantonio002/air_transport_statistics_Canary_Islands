@@ -196,3 +196,4 @@ Another visualization done
 
 ## 21/09/25
 
+Finished visualizations. We can start with the final step, orchestration
