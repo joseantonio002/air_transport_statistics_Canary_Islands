@@ -197,3 +197,10 @@ Another visualization done
 ## 21/09/25
 
 Finished visualizations. We can start with the final step, orchestration
+
+## 28/09/2025
+
+Because the airflow dag is a python script, you need to import the functions used in the dag or write them in the same dag script.\
+The problem is that you cant import a function from a ipynb. So I have to write all the code in python scripts. So basically have a last look at the\
+code, make sure everything is correct and then create the scripts so I can import the code in the dags
+
