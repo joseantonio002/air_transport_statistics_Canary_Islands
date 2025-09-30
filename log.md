@@ -204,3 +204,6 @@ Because the airflow dag is a python script, you need to import the functions use
 The problem is that you cant import a function from a ipynb. So I have to write all the code in python scripts. So basically have a last look at the\
 code, make sure everything is correct and then create the scripts so I can import the code in the dags
 
+## 30/09/2025
+
+Fix the relative paths in the pipeline codes so it can be executed from anywhere
