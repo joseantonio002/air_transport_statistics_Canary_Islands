@@ -211,3 +211,6 @@ Fix the relative paths in the pipeline codes so it can be executed from anywhere
 ## 01/09/2025
 
 Scripts ready
+
+Now I have to install airflow, create the dag and thats it
+Tomorrow check if the dag runs 

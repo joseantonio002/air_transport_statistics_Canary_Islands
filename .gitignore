@@ -7,3 +7,7 @@ share
 borrar*
 *.csv
 __pycache__
+.env
+config
+logs
+plugins
