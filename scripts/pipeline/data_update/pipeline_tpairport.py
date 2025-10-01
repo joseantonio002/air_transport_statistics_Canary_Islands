@@ -1,10 +1,9 @@
-# %%
 import pandas as pd
 import duckdb as db
 import requests
 from io import StringIO
+import os
 
-# %%
 def get_data_from_API_call(url):
     """
     Send a GET request to the specified URL and return the response
@@ -38,7 +37,7 @@ def get_data_from_API_call(url):
         raise Exception(f"Failed to retrieve data. Status code: {response.status_code}")
 
 def pipeline_traffic_per_airport():
-    # %%
+
     pass_t = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000001/~latest.csv?granularity=TIME_PERIOD[M]&lang=en&representation=TIME_PERIOD[~last=1]&granularity=TIME_PERIOD[M]"
     gm_t = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000002/~latest.csv?granularity=TIME_PERIOD[M]&lang=en&representation=TIME_PERIOD[~last=1]&granularity=TIME_PERIOD[M]"
     op_t = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000003/~latest.csv?granularity=TIME_PERIOD[M]&lang=en&representation=TIME_PERIOD[~last=1]&granularity=TIME_PERIOD[M]"
@@ -51,7 +50,6 @@ def pipeline_traffic_per_airport():
     gm_depar = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000008/~latest.csv?granularity=TIME_PERIOD[M]&lang=en&representation=TIME_PERIOD[~last=1]&granularity=TIME_PERIOD[M]"
     op_depar = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000009/~latest.csv?granularity=TIME_PERIOD[M]&lang=en&representation=TIME_PERIOD[~last=1]&granularity=TIME_PERIOD[M]"
 
-    # %%
     df_pass_t = get_data_from_API_call(pass_t)
     df_gm_t = get_data_from_API_call(gm_t)
     df_op_t = get_data_from_API_call(op_t)
@@ -64,16 +62,12 @@ def pipeline_traffic_per_airport():
     df_gm_depar = get_data_from_API_call(gm_depar)
     df_op_depar = get_data_from_API_call(op_depar)
 
-    # %%
-    #tpa = db.read_csv("./data_for_testing/TrafficPerAirport.csv")
-    tpa = db.read_csv("../../../data/TrafficPerAirport.csv")
+    tpa = db.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
 
-    # %%
     max_date_local = db.sql(' \
     SELECT MAX(Month) FROM tpa \
     ').fetchone()[0]
 
-    # %%
     pass_t = pd.concat([df_pass_t, df_pass_arr, df_pass_depar])
     op_t = pd.concat([df_op_t, df_op_arr, df_op_depar])
     gm_t = pd.concat([df_gm_t, df_gm_arr, df_gm_depar])
@@ -82,10 +76,8 @@ def pipeline_traffic_per_airport():
 
     m_t = gm_t.loc[gm_t['MEDIDAS_CODE'] == 'CORREO'].copy(deep=True)
 
-    # %%
     op_t.rename({'AEROPUERTO_ORIGEN_DESTINO_CODE': 'AEROPUERTO_ESCALA_CODE'}, axis=1, inplace=True)
 
-    # %%
     dfs = [
         pass_t,
         op_t,
@@ -93,7 +85,6 @@ def pipeline_traffic_per_airport():
         m_t
     ]
 
-    # %%
     for df in dfs:
         df['Month'] = pd.to_datetime(df['TIME_PERIOD#en'], format="%m/%Y").dt.date
         df.drop(columns=df.columns[df.columns.str.endswith("#es") | df.columns.str.endswith("#en")], inplace=True)
@@ -111,20 +102,18 @@ def pipeline_traffic_per_airport():
             # If the difference is more than one month, then you skipped a month, shouldnt happen but we make the error just in case
             if month_diff > 1:
                 # Possible improvements: make an algorithm that retrieves the missing data automatically
-                raise Exception(msg=f"The ISTAC data has more than one new month. This script wasnt properly executed last month. DF: {df.loc[0, 'MEDIDAS_CODE']}")
+                raise Exception(f"The ISTAC data has more than one new month. This script wasnt properly executed last month. DF: {df.loc[0, 'MEDIDAS_CODE']}")
 
         elif max_date_df == max_date_local:
-            raise Exception(msg=f"There is no new data, dataframe missing data: {df.loc[0, 'MEDIDAS_CODE']}")
+            raise Exception(f"There is no new data, dataframe missing data: {df.loc[0, 'MEDIDAS_CODE']}")
         else:
             raise Exception(f"The local table has newer data than the data at istac, this shouldnt happen and throws an error, dataframe missing data: {df.loc[0, 'MEDIDAS_CODE']}")
 
-    # %%
     op_t.drop('MEDIDAS_CODE', axis=1, inplace=True)
     pass_t.drop('MEDIDAS_CODE', axis=1, inplace=True)
     g_t.drop('MEDIDAS_CODE', axis=1, inplace=True)
     m_t.drop('MEDIDAS_CODE', axis=1, inplace=True)
 
-    # %%
     df_f = pass_t.merge(op_t, 
                         on=['AEROPUERTO_BASE_CODE', 'AEROPUERTO_ESCALA_CODE', 'MOVIMIENTO_AERONAVE_CODE', 'SERVICIO_AEREO_CODE', 'Month'], 
                         suffixes=("", "_op"),
@@ -149,14 +138,10 @@ def pipeline_traffic_per_airport():
     df_f['OBS_VALUE_m'] = df_f['OBS_VALUE_m'].astype(int)
     df_f['OBS_VALUE_g'] = df_f['OBS_VALUE_g'].astype(int)
 
+    airservice = pd.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/AirService.csv")))
+    aircraftmovement = pd.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/AircraftMovement.csv")))
+    airport = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/Airport.csv"))
 
-    # %%
-    territory = pd.read_csv('../../../data/Territory.csv')
-    airservice = pd.read_csv('../../../data/AirService.csv')
-    aircraftmovement = pd.read_csv('../../../data/AircraftMovement.csv')
-    airport = pd.read_csv('../../../data/Airport.csv')
-
-    # %%
     # Replace values in df_f["TERRITORIO_CODE"] with corresponding TerritoryId
     df_f["AEROPUERTO_BASE_CODE"] = df_f["AEROPUERTO_BASE_CODE"].map(dict(zip(airport["AirportCode"], airport["AirportId"])))
 
@@ -171,7 +156,6 @@ def pipeline_traffic_per_airport():
 
     df_f["MOVIMIENTO_AERONAVE_CODE"] = df_f["MOVIMIENTO_AERONAVE_CODE"].map(dict(zip(aircraftmovement['AircraftMovementCode'], aircraftmovement['AircraftMovementId'])))
 
-    # %%
     df_f.rename({
         'AEROPUERTO_BASE_CODE': 'BaseAirportId',
         'AEROPUERTO_ESCALA_CODE': 'StopoverAirportId',
@@ -184,16 +168,11 @@ def pipeline_traffic_per_airport():
         'OBS_VALUE_op': 'Operations'
     }, axis=1, inplace=True)
 
-    # %%
     df_f['BaseAirportId'] = df_f['BaseAirportId'].astype(int)
 
-    # %%
     df_f = df_f[['AirServiceId', 'AircraftMovementId', 'Month', 'BaseAirportId', 'StopoverAirportId', 'Passengers', 'Operations', 'Goods', 'Mail']]
 
-    # %%
     final = db.sql('SELECT * FROM tpa UNION ALL SELECT * FROM df_f')
 
-    # %%
-    final.to_csv('../../../data/TrafficPerAirport.csv')
-
+    final.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
 

@@ -207,3 +207,7 @@ code, make sure everything is correct and then create the scripts so I can impor
 ## 30/09/2025
 
 Fix the relative paths in the pipeline codes so it can be executed from anywhere
+
+## 01/09/2025
+
+Scripts ready
