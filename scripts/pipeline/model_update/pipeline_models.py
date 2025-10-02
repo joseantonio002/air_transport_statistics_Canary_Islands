@@ -1,12 +1,6 @@
-
 import pandas as pd
 import duckdb as db
-import matplotlib.pyplot as plt
-
-from datetime import datetime
 from prophet import Prophet
-
-from prophet.plot import plot_plotly, plot_components_plotly  
 
 import os
 

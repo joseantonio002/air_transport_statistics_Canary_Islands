@@ -208,9 +208,14 @@ code, make sure everything is correct and then create the scripts so I can impor
 
 Fix the relative paths in the pipeline codes so it can be executed from anywhere
 
-## 01/09/2025
+## 01/10/2025
 
 Scripts ready
 
 Now I have to install airflow, create the dag and thats it
 Tomorrow check if the dag runs 
+
+## 02/10/2025
+
+I give up with airflow, i cant get it to work and I want to finish this project already so I can move on. I'll do a simple cron job.
+For tomorrow delete all related to airflow and create the cron job
