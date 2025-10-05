@@ -227,3 +227,5 @@ Okay I dont give up:
 2º) Install airflow via pip so everything executes locally
 
 I think I can get it to work, but it would have been easier if I just installed it with pip so it executed locally
+
+Okay so I broke the repositorie trying to commit and push from the docker cotainer, forget about airflow with docker and just do it with pip

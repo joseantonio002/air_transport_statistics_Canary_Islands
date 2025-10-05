@@ -44,3 +44,5 @@ def pipeline_models():
             ORDER BY 1,2").df()
 
     final.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/predictions/Predictions.csv")))
+
+pipeline_models()
