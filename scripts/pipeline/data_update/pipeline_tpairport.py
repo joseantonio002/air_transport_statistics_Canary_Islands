@@ -62,7 +62,8 @@ def pipeline_traffic_per_airport():
     df_gm_depar = get_data_from_API_call(gm_depar)
     df_op_depar = get_data_from_API_call(op_depar)
 
-    tpa = db.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
+    #tpa = db.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
+    tpa = db.read_csv("/opt/airflow/data/TrafficPerAirport.csv") # when mounted the routes change
 
     max_date_local = db.sql(' \
     SELECT MAX(Month) FROM tpa \

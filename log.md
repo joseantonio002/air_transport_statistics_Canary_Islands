@@ -219,3 +219,11 @@ Tomorrow check if the dag runs
 
 I give up with airflow, i cant get it to work and I want to finish this project already so I can move on. I'll do a simple cron job.
 For tomorrow delete all related to airflow and create the cron job
+
+## 05/10/2025
+
+Okay I dont give up:
+1º) Try mounting volumes see if it works
+2º) Install airflow via pip so everything executes locally
+
+I think I can get it to work, but it would have been easier if I just installed it with pip so it executed locally

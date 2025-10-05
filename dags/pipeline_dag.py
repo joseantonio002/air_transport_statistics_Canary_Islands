@@ -1,5 +1,5 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
 
 import sys
@@ -14,9 +14,6 @@ from scripts.pipeline.data_update.pipeline_tpterritory import pipeline_traffic_p
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,   # Task won’t wait for previous run to succeed
-    "email": ["joseantunezpul@gmail.com"],  # For email alerts (optional)
-    "email_on_failure": True,
-    "email_on_retry": False,
     "retries": 0,               # How many times to retry a failed task
 }
 
