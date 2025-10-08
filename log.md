@@ -228,4 +228,5 @@ Okay I dont give up:
 
 I think I can get it to work, but it would have been easier if I just installed it with pip so it executed locally
 
-Okay so I broke the repositorie trying to commit and push from the docker cotainer, forget about airflow with docker and just do it with pip
+Okay so I broke the repositorie trying to commit and push from the docker cotainer withouth properly mounting the git directories and adding git configuration to the container, forget about airflow with docker and just do it with pip
+

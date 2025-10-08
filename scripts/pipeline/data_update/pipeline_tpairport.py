@@ -3,6 +3,7 @@ import duckdb as db
 import requests
 from io import StringIO
 import os
+import time
 
 def get_data_from_API_call(url):
     """
@@ -53,17 +54,16 @@ def pipeline_traffic_per_airport():
     df_pass_t = get_data_from_API_call(pass_t)
     df_gm_t = get_data_from_API_call(gm_t)
     df_op_t = get_data_from_API_call(op_t)
-
+    time.sleep(5) # Avoid status code 429
     df_pass_arr = get_data_from_API_call(pass_arr)
     df_gm_arr = get_data_from_API_call(gm_arr)
     df_op_arr = get_data_from_API_call(op_arr)
-
+    time.sleep(5) # Avoid status code 429
     df_pass_depar = get_data_from_API_call(pass_depar)
     df_gm_depar = get_data_from_API_call(gm_depar)
     df_op_depar = get_data_from_API_call(op_depar)
 
-    #tpa = db.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
-    tpa = db.read_csv("/opt/airflow/data/TrafficPerAirport.csv") # when mounted the routes change
+    tpa = db.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
 
     max_date_local = db.sql(' \
     SELECT MAX(Month) FROM tpa \
