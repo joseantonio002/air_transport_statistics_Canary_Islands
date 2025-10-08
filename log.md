@@ -230,3 +230,8 @@ I think I can get it to work, but it would have been easier if I just installed 
 
 Okay so I broke the repositorie trying to commit and push from the docker cotainer withouth properly mounting the git directories and adding git configuration to the container, forget about airflow with docker and just do it with pip
 
+## 08/10/2025
+
+I already have everything, airflow works fine with pip. Last revision and I can start working on the documentation, README and blog post.
+
+Just realized, I forgot to add the creation of the plots to the dag, so do that and everything is set

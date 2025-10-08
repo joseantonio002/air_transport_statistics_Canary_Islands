@@ -3,6 +3,7 @@ import pandas as pd
 import duckdb as db
 import requests
 from io import StringIO
+from time import sleep
 
 def get_data_from_API_call_tpt(url):
     """
@@ -46,7 +47,9 @@ def pipeline_traffic_per_territory():
     url_o = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000015/~latest.csv?lang=en&representation=TIME_PERIOD[~last=1]&granularity=TIME_PERIOD[M]"
 
     pas = get_data_from_API_call_tpt(url_pas)
+    sleep(5) # Avoid status code 429
     gm = get_data_from_API_call_tpt(url_gm)
+    sleep(5) # Avoid status code 429
     op = get_data_from_API_call_tpt(url_o)
 
     
