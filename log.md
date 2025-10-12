@@ -89,7 +89,7 @@ Okay so after some investigation, we dont really need to upload the csv to table
 in the next SQL project I do I will create tables, functions, views and all of that... In this project creating the table
 is not necessary we can run the queries over the csv file no problem.
 
-In other words, instead of storing the data in tables for now reason when we already have the csv files and we dont need any additional features from the database (only thing we need is retrieve the data for analytical purpouses and we can do that with csv files), following a **data lake** approach
+In other words, instead of storing the data in tables for now reason when we already have the csv files and we dont need any additional features from the database (only thing we need is retrieve the data for analytical purpouses and we can do that with csv files), following a **data lakehouse** approach
 
 So the plan is:
 1) End steps 2) and 3) 
@@ -235,3 +235,5 @@ Okay so I broke the repositorie trying to commit and push from the docker cotain
 I already have everything, airflow works fine with pip. Last revision and I can start working on the documentation, README and blog post.
 
 Just realized, I forgot to add the creation of the plots to the dag, so do that and everything is set
+
+## 12/10/2025
