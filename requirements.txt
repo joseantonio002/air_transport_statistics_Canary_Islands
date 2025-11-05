@@ -3,3 +3,4 @@ pandas==2.3.1
 prophet==1.1.7
 requests==2.32.4
 plotly==6.3.1
+apache-airflow==3.1.1 --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.1/constraints-3.12.txt"
