@@ -8,8 +8,9 @@ This project implements an automated data pipeline that collects, processes, and
 
 # Description
 
-Pequeña descripción de lo que he hecho, para mas info checkea mi blog
+This project is an automated data pipeline that collects, processes, and visualizes air transport statistics from the Canary Islands, updating itself monthly. It was built using Python, DuckDB, Prophet, Plotly, and Apache Airflow.
 
+### [Here I explain everything](https://joseantonio002.github.io/blog/post-4/)
 
 
 # Data modeling:
