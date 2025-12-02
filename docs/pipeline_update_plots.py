@@ -1301,3 +1301,7 @@ def create_airport_bar_chart(df, output_file="airport_bar_chart.html", div_id="a
         f.write(html_content)
     
     print(f"Wrote interactive bar chart to {output_file}")
+
+
+if __name__ == "__main__":
+    pipeline_update_plots()
