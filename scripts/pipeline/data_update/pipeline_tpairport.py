@@ -177,3 +177,6 @@ def pipeline_traffic_per_airport():
 
     final.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerAirport.csv")))
 
+
+if __name__ == "__main__":
+    pipeline_traffic_per_airport()

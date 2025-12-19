@@ -221,3 +221,6 @@ def pipeline_traffic_per_territory():
     final = db.sql('SELECT * FROM tpt UNION ALL SELECT * FROM df_f')
 
     final.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/TrafficPerTerritory.csv")))
+
+if __name__ == "__main__":
+    pipeline_traffic_per_territory()
