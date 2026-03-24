@@ -12,69 +12,6 @@ This project is an automated data pipeline that collects, processes, and visuali
 
 ### [Here I explain everything](https://joseantonio002.github.io/blog/post-4/)
 
-
-# Data modeling:
-
-## Facts Table: TrafficPerTerritory
-
-| Column Name           | Type       |
-|-----------------------|------------|
-| IslandId              | UTINYINT   |
-| StopoverTerritoryId   | UTINYINT   |
-| AircraftMovementId    | UTINYINT   |
-| AirServiceId          | UTINYINT   |
-| Month                 | DATE       |
-| Passengers            | UINTEGER   |
-| Goods                 | UINTEGER   |
-| Mail                  | UINTEGER   |
-| Operations            | UINTEGER   |
-
-## Facts Table: TrafficPerAirport
-
-| Column Name           | Type       |
-|-----------------------|------------|
-| BaseAirportId         | UINTEGER   |
-| StopoverAirportId     | UINTEGER   |
-| AircraftMovementId    | UTINYINT   |
-| AirServiceId          | UTINYINT   |
-| Month                 | DATE       |
-| Passengers            | UINTEGER   |
-| Goods                 | UINTEGER   |
-| Mail                  | UINTEGER   |
-| Operations            | UINTEGER   |
-
-## Dimenson Table: Territory
-
-| Column Name   | Type      |
-|---------------|-----------|
-| TerritoryId   | UTINYINT  |
-| Territory     | VARCHAR   |
-
-## Dimension Table: AircraftMovement
-
-| Column Name            | Type      |
-|------------------------|-----------|
-| AircraftMovementId     | UTINYINT  |
-| AircraftMovement       | VARCHAR   |
-
-## Dimension Table: AirService
-
-| Column Name    | Type      |
-|----------------|-----------|
-| AirServiceId   | UTINYINT  |
-| AirService     | VARCHAR   |
-
-## Dimension Table: Airport
-
-| Column Name          | Type      |
-|----------------------|-----------|
-| AirportId            | UINTEGER  |
-| AirportName          | VARCHAR   |
-| Latitude             | DOUBLE    |
-| Longitude            | DOUBLE    |
-| CountryCode          | VARCHAR   |
-| CountryName          | VARCHAR   |
-
 # Extra
 
 [Data source](https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/collection.html?resourceType=collection&agencyId=ISTAC&resourceId=C00017A_000001)
