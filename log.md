@@ -236,4 +236,13 @@ I already have everything, airflow works fine with pip. Last revision and I can 
 
 Just realized, I forgot to add the creation of the plots to the dag, so do that and everything is set
 
-## 12/10/2025
+## 19/07/2025
+
+Going back to this project, there are a few things to improve, given the constrains of the project, make it as production ready as possible:
+- Change the processing to use only duckdb. Pandas is really slow, you cant even execute the script that creates the tables for the first time because the datasets are too large and overflow the memory (at least in my machine)
+- Add deterministics reruns, a `--month parameter`, Idempotent partition replacement or MERGE, able to backfill
+- Add data quality controls, Row counts are within an expected range
+- Failure handling and recovery: Automatic retries for temporary failures, Timeouts so jobs do not run forever, Clear failure states, Safe restart from the failed step, Rollback or restoration of the previous valid dataset. A common pattern is to write results to staging tables, validate them, and only then replace or merge them into production tables.
+- Observability: At minimum, capture Start and end time, Processing month, Number of rows read, inserted, updated, rejected, and deleted, Duration of each step, Data-quality results, Error messages with useful context
+- Add tests 
+- When cloning the project, you need to set up all by hand and there are things missing like the airport data you need to download manually and paste in the right directory. REPRODUCIBILITY, Make a script that automatically sets everything up. Dockerize?
