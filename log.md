@@ -246,3 +246,115 @@ Going back to this project, there are a few things to improve, given the constra
 - Observability: At minimum, capture Start and end time, Processing month, Number of rows read, inserted, updated, rejected, and deleted, Duration of each step, Data-quality results, Error messages with useful context
 - Add tests 
 - When cloning the project, you need to set up all by hand and there are things missing like the airport data you need to download manually and paste in the right directory. REPRODUCIBILITY, Make a script that automatically sets everything up. Dockerize?
+
+## 20/07/2025
+
+New structure of the project:
+```
+monthly_pipeline/
+├── pyproject.toml
+├── README.md
+├── .gitignore
+├── .env.example
+│
+├── src/
+│   └── monthly_pipeline/
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── cli.py
+│       ├── pipeline.py
+│       ├── config.py
+│       │
+│       ├── extract/
+│       │   ├── __init__.py
+│       │   └── api_client.py
+│       │
+│       ├── validation/
+│       │   ├── __init__.py
+│       │   ├── contract_loader.py
+│       │   └── validators.py
+│       │
+│       ├── transform/
+│       │   ├── __init__.py
+│       │   └── transformations.py
+│       │
+│       ├── load/
+│       │   ├── __init__.py
+│       │   └── destination.py
+│       │
+│       └── audit/
+│           ├── __init__.py
+│           └── run_repository.py
+│
+├── contracts/
+│   └── source_name/
+│       └── dataset_name.yaml
+│
+├── config/
+│   ├── base.yaml
+│   ├── development.yaml
+│   └── production.yaml
+│
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── contract/
+│   └── fixtures/
+│
+├── sql/
+│   ├── create_destination_table.sql
+│   └── create_pipeline_runs_table.sql
+│
+└── runtime/                  # Solo para ejecución local
+    ├── logs/
+    └── run_metadata/
+```
+
+Data contract example:
+```
+dataset: monthly_sales
+version: "1.0"
+
+source:
+  type: api
+  frequency: monthly
+
+schema:
+  sale_id:
+    type: string
+    nullable: false
+  sale_date:
+    type: date
+    nullable: false
+  amount:
+    type: float
+    nullable: false
+
+keys:
+  primary:
+    - sale_id
+
+partitioning:
+  field: sale_date
+  granularity: month
+
+quality:
+  duplicates:
+    maximum: 0
+
+  null_percentage:
+    amount:
+      maximum: 0
+
+volume:
+  validation_scope: period
+  minimum_rows_per_period: 8000
+  maximum_rows_per_period: 15000
+  severity: warning
+
+ingestion:
+  empty_period:
+    allowed: false
+  partial_period:
+    allowed: false
+```
