@@ -5,7 +5,7 @@ source:
   type: api
   update_frequency: monthly
   docs: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/
-  web_page: https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000006&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000006#visualization/table
+  web_page: https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000004&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000002
   endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000006/
 
 schema:
