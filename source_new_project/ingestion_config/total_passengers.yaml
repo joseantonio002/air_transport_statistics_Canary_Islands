@@ -1,0 +1,28 @@
+dataset: total_passengers
+version: "1.0"
+
+source:
+  type: api
+  frequency: monthly
+  docs: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/
+  web_page: https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000001&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000001#visualization/table
+  endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000001/
+
+schema:
+  example:
+    type: string
+    nullable: false
+
+quality:
+  duplicates:
+    maximum: 0
+
+  null_percentage:
+    amount:
+      maximum: 0
+
+volume:
+  monthly:
+    minimum_rows: 10620
+    maximum_rows: 10620
+    severity: warning
