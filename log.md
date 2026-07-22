@@ -370,5 +370,5 @@ Lets make the "data contract" or "ingestion configuration" for each data source.
 
 I just spent and hour figuring out the exact datasets in the web page from the API calls because version numbers have changed. Let this be a very important lesson, always thoroughly document your data sources, Don’t take anything for granted.  
 
-Once that is done review what tables am I creating, schemas, and see if I can improve it
+Once that is done review what tables am I creating, schemas, and see if I can improve it. And document that too
 
