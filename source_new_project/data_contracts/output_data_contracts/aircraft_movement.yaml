@@ -1,0 +1,37 @@
+dataset: aircraft_movement
+version: "1.0"
+
+source:
+  type: csv_file
+  path: data/Final_AircraftMovement.csv
+  update_frequency: monthly
+  source_owner: https://joseantonio002.github.io/
+
+schema:
+  AircraftMovementId:
+    type: integer
+    nullable: false
+  AircraftMovementCode:
+    type: string
+    nullable: false
+  AircraftMovement:
+    type: string
+    nullable: false
+
+quality:
+  duplicates:
+    maximum: 0
+
+  null_percentage:
+    AircraftMovementId:
+      maximum: 0
+    AircraftMovementCode:
+      maximum: 0
+    AircraftMovement:
+      maximum: 0
+
+volume:
+  monthly:
+    minimum_rows: 3
+    maximum_rows: 3
+    severity: warning
