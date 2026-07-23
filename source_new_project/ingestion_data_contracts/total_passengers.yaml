@@ -1,23 +1,16 @@
-dataset: departure_operations
+dataset: total_passengers
 version: "1.0"
 
 source:
   type: api
   update_frequency: monthly
   docs: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/
-  web_page: https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000007&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000003#visualization/table
-  endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000009/
+  web_page: https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000001&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000001#visualization/table
+  endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000001/
+  source_owner: ISTAC_instituto_canario_estadistica
+  pipeline_owner: https://joseantonio002.github.io/
 
 schema:
-  AEROPUERTO_ORIGEN_DESTINO#en:
-    type: string
-    nullable: false
-  AEROPUERTO_ORIGEN_DESTINO#es:
-    type: string
-    nullable: false
-  AEROPUERTO_ORIGEN_DESTINO_CODE:
-    type: string
-    nullable: false
   SERVICIO_AEREO#en:
     type: string
     nullable: false
@@ -45,15 +38,6 @@ schema:
   MOVIMIENTO_AERONAVE_CODE:
     type: string
     nullable: false
-  AEROPUERTO_BASE#en:
-    type: string
-    nullable: false
-  AEROPUERTO_BASE#es:
-    type: string
-    nullable: false
-  AEROPUERTO_BASE_CODE:
-    type: string
-    nullable: false
   TIME_PERIOD#en:
     type: string
     nullable: false
@@ -63,14 +47,26 @@ schema:
   TIME_PERIOD_CODE:
     type: string
     nullable: false
+  AEROPUERTO_BASE#en:
+    type: string
+    nullable: false
+  AEROPUERTO_BASE#es:
+    type: string
+    nullable: false
+  AEROPUERTO_BASE_CODE:
+    type: string
+    nullable: false
+  AEROPUERTO_ESCALA#en:
+    type: string
+    nullable: false
+  AEROPUERTO_ESCALA#es:
+    type: string
+    nullable: false
+  AEROPUERTO_ESCALA_CODE:
+    type: string
+    nullable: false
   OBS_VALUE:
     type: number
-    nullable: true
-  CONFIDENCIALIDAD_OBSERVACION#en:
-    type: string
-    nullable: true
-  CONFIDENCIALIDAD_OBSERVACION#es:
-    type: string
     nullable: true
   ESTADO_OBSERVACION#en:
     type: string
@@ -79,6 +75,12 @@ schema:
     type: string
     nullable: true
   ESTADO_OBSERVACION_CODE:
+    type: string
+    nullable: true
+  CONFIDENCIALIDAD_OBSERVACION#en:
+    type: string
+    nullable: true
+  CONFIDENCIALIDAD_OBSERVACION#es:
     type: string
     nullable: true
 
