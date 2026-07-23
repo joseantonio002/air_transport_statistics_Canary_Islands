@@ -1,0 +1,24 @@
+dataset: airport
+version: "1.0"
+
+source:
+  type: csv_file
+  update_frequency: monthly
+  source_owner: https://joseantonio002.github.io/
+
+schema:
+
+
+quality:
+  duplicates:
+    maximum: 0
+
+  null_percentage:
+    amount:
+      maximum: 0
+
+volume:
+  monthly:
+    minimum_rows: 10620
+    maximum_rows: 10620
+    severity: warning
