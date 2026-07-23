@@ -370,7 +370,71 @@ Lets make the "data contract" or "ingestion configuration" for each data source.
 
 I just spent and hour figuring out the exact datasets in the web page from the API calls because version numbers have changed. Let this be a very important lesson, always thoroughly document your data sources, Don’t take anything for granted.  
 
-Once that is done review what tables am I creating, schemas, and see if I can improve it. And document that too
+Once that is done review what tables am I creating, schemas, and see if I can improve it. And document that too.
+
+
+### Data modeling:
+
+#### Facts Table: TrafficPerTerritory
+
+| Column Name           | Type       |
+|-----------------------|------------|
+| IslandId              | UTINYINT   |
+| StopoverTerritoryId   | UTINYINT   |
+| AircraftMovementId    | UTINYINT   |
+| AirServiceId          | UTINYINT   |
+| Month                 | DATE       |
+| Passengers            | UINTEGER   |
+| Goods                 | UINTEGER   |
+| Mail                  | UINTEGER   |
+| Operations            | UINTEGER   |
+
+#### Facts Table: TrafficPerAirport
+
+| Column Name           | Type       |
+|-----------------------|------------|
+| BaseAirportId         | UINTEGER   |
+| StopoverAirportId     | UINTEGER   |
+| AircraftMovementId    | UTINYINT   |
+| AirServiceId          | UTINYINT   |
+| Month                 | DATE       |
+| Passengers            | UINTEGER   |
+| Goods                 | UINTEGER   |
+| Mail                  | UINTEGER   |
+| Operations            | UINTEGER   |
+
+#### Dimenson Table: Territory
+
+| Column Name   | Type      |
+|---------------|-----------|
+| TerritoryId   | UTINYINT  |
+| Territory     | VARCHAR   |
+
+#### Dimension Table: AircraftMovement
+
+| Column Name            | Type      |
+|------------------------|-----------|
+| AircraftMovementId     | UTINYINT  |
+| AircraftMovement       | VARCHAR   |
+
+#### Dimension Table: AirService
+
+| Column Name    | Type      |
+|----------------|-----------|
+| AirServiceId   | UTINYINT  |
+| AirService     | VARCHAR   |
+
+#### Dimension Table: Airport
+
+| Column Name          | Type      |
+|----------------------|-----------|
+| AirportId            | UINTEGER  |
+| AirportName          | VARCHAR   |
+| Latitude             | DOUBLE    |
+| Longitude            | DOUBLE    |
+| CountryCode          | VARCHAR   |
+| CountryName          | VARCHAR   |
 
 
 
+The data modeling is incorrect. Fact tables should only contain keys and measures. However, in my fact tables I store a date column (Month), which breaks the rules of multidimensional modeling. To be correct, I should have added a Time dimension and referenced it via a key. It would also have been a good idea to add surrogate keys to the fact tables. Fix this.
