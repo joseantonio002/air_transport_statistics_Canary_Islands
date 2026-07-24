@@ -12,3 +12,4 @@ config
 logs
 plugins
 .python-version
+log.md
