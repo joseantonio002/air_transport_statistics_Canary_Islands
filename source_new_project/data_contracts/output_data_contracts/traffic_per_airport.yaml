@@ -20,20 +20,20 @@ schema:
   AirServiceId:
     type: integer
     nullable: false
-  Month:
-    type: date
+  MonthId:
+    type: integer
     nullable: false
   Passengers:
-    type: integer
+    type: bigint
     nullable: false
   Goods:
-    type: integer
+    type: bigint
     nullable: false
   Mail:
-    type: integer
+    type: bigint
     nullable: false
   Operations:
-    type: integer
+    type: bigint
     nullable: false
   relationships:
     - type: foreignKey
@@ -48,6 +48,9 @@ schema:
     - type: foreignKey
       from: AirServiceId
       to: air_service.AirServiceId
+    - type: foreignKey
+      from: MonthId
+      to: calendar_month.MonthId
 
 quality:
   duplicates:
@@ -62,7 +65,7 @@ quality:
       maximum: 0
     AirServiceId:
       maximum: 0
-    Month:
+    MonthId:
       maximum: 0
     Passengers:
       maximum: 0

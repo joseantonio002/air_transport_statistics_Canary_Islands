@@ -4,7 +4,7 @@ version: "1.0"
 source:
   type: csv_file
   path: data/Final_AircraftMovement.csv
-  update_frequency: monthly
+  update_frequency: one_time
   source_owner: https://joseantonio002.github.io/
 
 schema:
@@ -31,7 +31,7 @@ quality:
       maximum: 0
 
 volume:
-  monthly:
+  one_time:
     minimum_rows: 3
     maximum_rows: 3
     severity: warning

@@ -436,5 +436,84 @@ Once that is done review what tables am I creating, schemas, and see if I can im
 | CountryName          | VARCHAR   |
 
 
+The data modeling is incorrect. Fact tables should only contain keys and measures. However, in my fact tables I store a date column (Month), which breaks the rules of multidimensional modeling. To be correct, I should add a Time dimension and referenced it via a key. It would also have been a good idea to add surrogate keys to the fact tables. Fix this.
 
-The data modeling is incorrect. Fact tables should only contain keys and measures. However, in my fact tables I store a date column (Month), which breaks the rules of multidimensional modeling. To be correct, I should have added a Time dimension and referenced it via a key. It would also have been a good idea to add surrogate keys to the fact tables. Fix this.
+## 24/07/2026
+
+1. Fix the schema and output data contracts
+2. Define exactly what I want, all steps
+3. Review agentic engineering. How do you really program with agents, constrains, do you start with the whole project directly or module by module...
+
+#### Facts Table: TrafficPerTerritory
+
+| Column Name         | Type    |
+| ------------------- | ------- |
+| IslandId            | INTEGER |
+| StopoverTerritoryId | INTEGER |
+| AircraftMovementId  | INTEGER |
+| AirServiceId        | INTEGER |
+| MonthId             | INTEGER |
+| Passengers          | BIGINT  |
+| Goods               | BIGINT  |
+| Mail                | BIGINT  |
+| Operations          | BIGINT  |
+
+#### Facts Table: TrafficPerAirport
+
+| Column Name        | Type    |
+| ------------------ | ------- |
+| BaseAirportId      | INTEGER |
+| StopoverAirportId  | INTEGER |
+| AircraftMovementId | INTEGER |
+| AirServiceId       | INTEGER |
+| MonthId            | INTEGER |
+| Passengers         | BIGINT  |
+| Goods              | BIGINT  |
+| Mail               | BIGINT  |
+| Operations         | BIGINT  |
+
+#### Dimension Table: CalendarMonth
+
+| Column Name    | Type        |
+| -------------- | ----------- |
+| MonthId        | INTEGER     |
+| MonthStartDate | DATE        |
+| MonthNumber    | INTEGER     |
+| MonthName      | VARCHAR(20) |
+| QuarterNumber  | INTEGER     |
+| QuarterName    | VARCHAR(10) |
+| Year           | INTEGER     |
+| YearMonth      | VARCHAR(7)  |
+
+#### Dimension Table: Territory
+
+| Column Name | Type         |
+| ----------- | ------------ |
+| TerritoryId | INTEGER      |
+| Territory   | VARCHAR(255) |
+
+#### Dimension Table: AircraftMovement
+
+| Column Name        | Type         |
+| ------------------ | ------------ |
+| AircraftMovementId | INTEGER      |
+| AircraftMovement   | VARCHAR(255) |
+
+#### Dimension Table: AirService
+
+| Column Name  | Type         |
+| ------------ | ------------ |
+| AirServiceId | INTEGER      |
+| AirService   | VARCHAR(255) |
+
+#### Dimension Table: Airport
+
+| Column Name | Type         |
+| ----------- | ------------ |
+| AirportId   | INTEGER      |
+| AirportName | VARCHAR(255) |
+| Latitude    | DECIMAL(9,6) |
+| Longitude   | DECIMAL(9,6) |
+| CountryCode | VARCHAR(3)   |
+| CountryName | VARCHAR(255) |
+
