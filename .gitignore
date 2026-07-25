@@ -8,8 +8,5 @@ borrar*
 *.csv
 __pycache__
 .env
-config
-logs
-plugins
 .python-version
 log.md
