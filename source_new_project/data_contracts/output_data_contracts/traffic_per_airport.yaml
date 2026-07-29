@@ -53,6 +53,12 @@ schema:
       to: calendar_month.MonthId
 
 quality:
+  natural_key:
+    - AirServiceId
+    - AircraftMovementId
+    - MonthId
+    - BaseAirportId
+    - StopoverAirportId
   duplicates:
     maximum: 0
 
@@ -80,4 +86,3 @@ volume:
   monthly:
     minimum_rows: 17164
     maximum_rows: 17164
-

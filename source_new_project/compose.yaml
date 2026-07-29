@@ -39,6 +39,10 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/pipeline/data
+    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/pipeline/config
+    - ${AIRFLOW_PROJ_DIR:-.}/data_contracts:/opt/pipeline/data_contracts
+    - ${AIRFLOW_PROJ_DIR:-.}/runtime:/opt/pipeline/runtime
     - /var/run/docker.sock:/var/run/docker.sock
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:

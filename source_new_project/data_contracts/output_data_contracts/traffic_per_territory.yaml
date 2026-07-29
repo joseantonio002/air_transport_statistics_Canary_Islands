@@ -53,6 +53,12 @@ schema:
       to: calendar_month.MonthId
 
 quality:
+  natural_key:
+    - IslandId
+    - StopoverTerritoryId
+    - AircraftMovementId
+    - AirServiceId
+    - MonthId
   duplicates:
     maximum: 0
 

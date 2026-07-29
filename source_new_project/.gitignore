@@ -1,0 +1,7 @@
+.env
+__pycache__/
+.pytest_cache/
+*.py[cod]
+runtime/logs/
+runtime/run_metadata/
+runtime/tmp/

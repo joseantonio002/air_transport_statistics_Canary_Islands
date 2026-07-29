@@ -1,0 +1,21 @@
+source:
+  api_base_url: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0
+  datasets:
+    airport_passengers: C00017A_000004
+    airport_goods_mail: C00017A_000005
+    airport_operations: C00017A_000006
+    territory_passengers: C00017A_000013
+    territory_goods_mail: C00017A_000014
+    territory_operations: C00017A_000015
+paths:
+  data: data
+  contracts: data_contracts
+  logs: runtime/logs
+  metadata: runtime/run_metadata
+  temporary: runtime/tmp
+retry_count: 5
+request_timeout: 30
+pipeline_timeout: 3600
+backoff_factor: 1
+full_history_start_month: 2004-01
+calendar_end_month: 2099-12

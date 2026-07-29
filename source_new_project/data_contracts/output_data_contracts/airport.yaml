@@ -17,12 +17,15 @@ schema:
   AirportCode:
     type: string
     nullable: false
+  IcaoCode:
+    type: string
+    nullable: true
   Latitude:
     type: number
-    nullable: false
+    nullable: true
   Longitude:
     type: number
-    nullable: false
+    nullable: true
   CountryCode:
     type: string
     nullable: false
@@ -40,10 +43,6 @@ quality:
     AirportName:
       maximum: 0
     AirportCode:
-      maximum: 0
-    Latitude:
-      maximum: 0
-    Longitude:
       maximum: 0
     CountryCode:
       maximum: 0
