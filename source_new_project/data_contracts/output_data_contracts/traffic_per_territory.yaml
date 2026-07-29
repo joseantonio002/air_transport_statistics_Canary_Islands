@@ -75,3 +75,8 @@ quality:
       maximum: 0
     Operations:
       maximum: 0
+
+volume:
+  monthly:
+    minimum_rows: 480
+    maximum_rows: 480

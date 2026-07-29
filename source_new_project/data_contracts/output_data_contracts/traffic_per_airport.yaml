@@ -3,7 +3,7 @@ version: "1.0"
 
 source:
   type: csv_file
-  path: data/Final_TrafficPerAirport.csv
+  path: data/TrafficPerAirport.csv
   update_frequency: monthly
   source_owner: https://joseantonio002.github.io/
 
@@ -75,3 +75,9 @@ quality:
       maximum: 0
     Operations:
       maximum: 0
+
+volume:
+  monthly:
+    minimum_rows: 17164
+    maximum_rows: 17164
+

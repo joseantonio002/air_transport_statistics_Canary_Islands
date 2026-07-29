@@ -94,6 +94,6 @@ quality:
 
 volume:
   monthly:
-    minimum_rows: 10620
-    maximum_rows: 10620
+    minimum_rows: 10548
+    maximum_rows: 10548
     severity: warning
