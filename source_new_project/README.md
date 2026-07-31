@@ -26,7 +26,7 @@ pip install -e '.[test]'
 
 ## Initialization
 
-From this directory, run `src/initialize.sh`. It detects the local timezone,
+From this directory, run `./initialize.sh`. It detects the local timezone,
 creates dimensions, builds the pipeline image, starts Compose, waits for
 Airflow health, and unpauses the DAG. It does not trigger a pipeline run.
 Set `PIPELINE_TIMEZONE` to override the detected timezone.

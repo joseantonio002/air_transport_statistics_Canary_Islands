@@ -176,3 +176,51 @@ def validate_contract_datasets(data_root: str | Path, contract_root: str | Path)
             _fail(str(document["dataset"]), contract_path, f"missing source dataset: {data_path}")
         results.append(validate_csv(data_path, contract_path))
     return results
+
+
+def validate_records(
+    records: list[dict[str, Any]],
+    contract_path: str | Path,
+    reference_tables: dict[str, str | Path] | None = None,
+) -> ValidationResult:
+    """Validate extracted records without writing the raw API response to disk."""
+    contract_path = Path(contract_path)
+    document = _contract_document(contract_path)
+    dataset = str(document["dataset"])
+    schema = {key: value for key, value in document["schema"].items() if key != "relationships"}
+    columns = set().union(*(row.keys() for row in records)) if records else set()
+    missing = [column for column in schema if column not in columns]
+    if missing:
+        _fail(dataset, contract_path, f"missing required columns: {missing}")
+    for column, definition in schema.items():
+        type_name = str(definition.get("type", "string"))
+        nullable = bool(definition.get("nullable", True))
+        null_rows = [row for row in records if _is_null(row.get(column))]
+        if null_rows and not nullable:
+            _fail(dataset, contract_path, f"nullability violation in column '{column}'", null_rows)
+        bad_rows = [row for row in records if not _is_null(row.get(column)) and not _valid_value(str(row[column]), type_name)]
+        if bad_rows:
+            _fail(dataset, contract_path, f"data type violation in column '{column}'", bad_rows)
+        if column == "MonthId":
+            bad_months = [row for row in records if not _is_null(row.get(column)) and not _month_valid(str(row[column]))]
+            if bad_months:
+                _fail(dataset, contract_path, "invalid month in column 'MonthId'", bad_months)
+    quality = document.get("quality") or {}
+    natural_key = quality.get("natural_key", [])
+    if natural_key:
+        seen: set[tuple[str, ...]] = set()
+        duplicates = []
+        for row in records:
+            key = tuple(str(row.get(column, "")) for column in natural_key)
+            if key in seen:
+                duplicates.append(row)
+            seen.add(key)
+        if duplicates:
+            _fail(dataset, contract_path, f"duplicate natural key {natural_key}", duplicates)
+    volume = document.get("volume") or {}
+    rule = next(iter(volume.values()), None)
+    if isinstance(rule, dict):
+        minimum, maximum = rule.get("minimum_rows"), rule.get("maximum_rows")
+        if minimum is not None and len(records) < minimum or maximum is not None and len(records) > maximum:
+            _fail(dataset, contract_path, f"row count {len(records)} outside expected range {minimum}..{maximum}")
+    return ValidationResult(dataset, len(records))

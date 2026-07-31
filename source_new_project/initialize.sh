@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# The initializer lives at the project root, alongside src/, config/, and compose.yaml.
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIMEZONE="${PIPELINE_TIMEZONE:-$(cat /etc/timezone 2>/dev/null || true)}"
 TIMEZONE="${TIMEZONE:-Atlantic/Canary}"
 export PIPELINE_TIMEZONE="$TIMEZONE"
@@ -15,7 +16,6 @@ docker compose up -d
 until curl --fail --silent http://localhost:8080/api/v2/monitor/health >/dev/null; do
   sleep 5
 done
-airflow dags unpause istac_air_transport_pipeline
 echo "Airflow is ready. Manual commands:"
 echo "  PYTHONPATH=src python -m pipeline run"
 echo "  PYTHONPATH=src python -m pipeline backfill --start 2026-01 --end 2026-06"

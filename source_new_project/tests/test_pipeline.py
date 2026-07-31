@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
+import pipeline.__main__ as cli
 from pipeline.pipeline import PipelineError, atomic_replace_facts, inclusive_months, run_pipeline
+from pipeline.orchestrator import PipelineApplication
 
 
 def rows(months, value=1):
@@ -52,3 +54,27 @@ def test_run_writes_metadata_and_calls_model_after_both_tables(tmp_path: Path) -
     assert document["status"] == "success"
     assert document["mode"] == "run"
     assert calls == ["model"]
+
+
+def test_cli_dispatches_run_to_real_orchestrator(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = []
+    monkeypatch.setattr(cli, "run_from_project_root", lambda root, mode, **kwargs: calls.append((root, mode, kwargs)) or {})
+
+    assert cli.main(["run", "--month", "2026-06", "--project-root", "/tmp/project"]) == 0
+    assert calls == [("/tmp/project", "run", {"month": "2026-06"})]
+
+
+def test_application_builds_both_fact_tables_from_extracted_groups() -> None:
+    app = object.__new__(PipelineApplication)
+    app.airports = {"ES_GCTS": 1}
+    app.services = {"PAX": 10}
+    app.movements = {"ARR": 20}
+    app.territories = {"ES": 1}
+    airport_row = {"SERVICIO_AEREO_CODE": "PAX", "MOVIMIENTO_AERONAVE_CODE": "ARR", "AEROPUERTO_BASE_CODE": "ES_GCTS", "AEROPUERTO_ESCALA_CODE": "ES_GCTS", "OBS_VALUE": "2"}
+    territory_row = {"TERRITORIO_CODE": "ES", "AEROPUERTO_ESCALA_CODE": "ES", "SERVICIO_AEREO_CODE": "PAX", "MOVIMIENTO_AERONAVE_CODE": "ARR", "OBS_VALUE": "3"}
+    app._fetch = lambda dataset, month: [airport_row] if dataset.startswith("airport_") else [territory_row]
+
+    airport, territory = app.build_month(202606)
+
+    assert airport[0]["Passengers"] == 6
+    assert territory[0]["Passengers"] == 3

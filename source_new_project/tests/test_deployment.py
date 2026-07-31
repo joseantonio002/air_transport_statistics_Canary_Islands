@@ -18,7 +18,7 @@ def test_image_runs_pipeline_stages_and_init_does_not_trigger_pipeline() -> None
     dockerfile = (ROOT / "src" / "Dockerfile").read_text(encoding="utf-8")
     assert "pip install" in dockerfile
     assert "model_update" in dockerfile
-    init = (ROOT / "src" / "initialize.sh").read_text(encoding="utf-8")
+    init = (ROOT / "initialize.sh").read_text(encoding="utf-8")
     assert "PIPELINE_TIMEZONE" in init
     assert "docker compose up" in init
     assert "dags unpause" in init

@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import time
+from datetime import datetime
 from collections.abc import Iterator
 from typing import Any
 from urllib.parse import urlencode
@@ -86,4 +87,9 @@ def _normalise_month(value: str) -> str:
         return value
     if len(value) == 8 and value[4] == "-" and value[5] == "M":
         return f"{value[:4]}-{value[6:]}"
+    for pattern in ("%m/%Y", "%Y/%m", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(value, pattern).strftime("%Y-%m")
+        except ValueError:
+            continue
     return value

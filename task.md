@@ -580,11 +580,11 @@ Then implement and verify.
 
 ### Completion Record
 
-- **Files changed:** `source_new_project/src/pipeline/pipeline.py`.
+- **Files changed:** `source_new_project/src/pipeline/pipeline.py`, `source_new_project/src/pipeline/orchestrator.py`, `source_new_project/src/pipeline/__main__.py`, `source_new_project/src/pipeline/config.py`, `source_new_project/src/pipeline/extract/__init__.py`, and `source_new_project/config/config.yaml`.
 - **Tests added/modified:** `source_new_project/tests/test_pipeline.py`.
 - **Commands run:** `pytest -q tests/test_pipeline.py`; `pytest -q`.
-- **Results:** Pipeline tests 3 passed; full suite 32 passed.
-- **Decisions and assumptions:** `run_pipeline` receives the configured data directory, stores metadata relative to its project root, and replaces both fact files only after both replacement files are ready.
+- **Results:** Pipeline tests 5 passed; full suite 44 passed. A real `run --month 2026-06` correctly failed before extraction because earlier history is absent, as required by the contract.
+- **Decisions and assumptions:** `run_pipeline` receives the configured data directory, stores metadata relative to its project root, replaces both fact files only after both replacement files are ready, and the CLI now dispatches through all extraction, validation, transformation, loading, and model-update stages.
 - **Unresolved questions:** none
 
 ## Task 8 — Implement Model Update
@@ -847,8 +847,8 @@ Do not delete the old project yet. Confirm that everything required for moving `
 ### Completion Record
 
 - **Files changed:** `source_new_project/README.md`, `source_new_project/src/pipeline/__main__.py`, and `source_new_project/tests/test_integration.py`.
-- **Tests added/modified:** `source_new_project/tests/test_integration.py`.
+- **Tests added/modified:** `source_new_project/tests/test_integration.py`, `source_new_project/tests/test_pipeline.py`.
 - **Commands run:** `pytest -q`; `PYTHONPATH=src python -m pipeline --help`; all three required CLI forms; `python -m py_compile ...`; `git diff --check`; `docker build -f src/Dockerfile -t istac-air-transport-pipeline:final-check .`; copied-project `pytest -q`.
-- **Results:** 42 tests passed; CLI forms succeeded; compilation and whitespace checks passed; Docker image built; copied project passed 42 tests. Old-project paths remain unchanged in git status.
+- **Results:** 44 tests passed; CLI dispatch and integration tests passed; compilation and whitespace checks passed; Docker image built; copied project passed the previous full suite. A real monthly CLI invocation enforced the missing-history rule and wrote failure metadata. Old-project paths remain unchanged in git status.
 - **Decisions and assumptions:** Airflow/Docker integration is statically verified in this environment because Airflow and pendulum are not installed; the actual visualization automation was not run because it commits and pushes.
 - **Unresolved questions:** Airflow dependency installation and live DAG import require the deployment environment; explicit approval is required before running the automation script’s commit/push path.

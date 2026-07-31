@@ -1,20 +1,25 @@
-# AIRFLOW_IMAGE_NAME           - Docker image name used to run Airflow.
-#                                Default: apache/airflow:3.0.1
-# AIRFLOW_UID                  - User ID in Airflow containers
+# AIRFLOW_IMAGE_NAME           - Docker image used to run Airflow.
+#                                Default: apache/airflow:3.1.8
+# AIRFLOW_UID                  - User ID used by the Airflow containers.
 #                                Default: 50000
-# AIRFLOW_PROJ_DIR             - Base path to which all the files will be volumed.
+# AIRFLOW_PROJ_DIR             - Host directory containing Airflow's dags, logs,
+#                                config, and plugins directories.
+#                                Default: ./airflow
+# PIPELINE_PROJ_DIR            - Host project directory containing the pipeline's
+#                                data, config, data_contracts, and runtime directories.
 #                                Default: .
-# Those configurations are useful mostly in case of standalone testing/running Airflow in test/try-out mode
+#
+# Airflow and pipeline mounts intentionally use separate host roots. This keeps
+# pipeline data out of the airflow/ directory.
 #
 # _AIRFLOW_WWW_USER_USERNAME   - Username for the administrator account (if requested).
 #                                Default: airflow
 # _AIRFLOW_WWW_USER_PASSWORD   - Password for the administrator account (if requested).
 #                                Default: airflow
-# _PIP_ADDITIONAL_REQUIREMENTS - Additional PIP requirements to add when starting all containers.
-#                                Use this option ONLY for quick checks. Installing requirements at container
-#                                startup is done EVERY TIME the service is started.
-#                                A better way is to build a custom image or extend the official image
-#                                as described in https://airflow.apache.org/docs/docker-stack/build.html.
+# _PIP_ADDITIONAL_REQUIREMENTS - Extra Python requirements installed when containers start.
+#                                Use only for quick checks. A custom Airflow image is
+#                                preferred for repeatable deployments.
+#                                See https://airflow.apache.org/docs/docker-stack/build.html.
 #                                Default: ''
 
 
@@ -35,14 +40,16 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
   volumes:
-    - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-    - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/pipeline/data
-    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/pipeline/config
-    - ${AIRFLOW_PROJ_DIR:-.}/data_contracts:/opt/pipeline/data_contracts
-    - ${AIRFLOW_PROJ_DIR:-.}/runtime:/opt/pipeline/runtime
+    # Airflow host mounts.
+    - ${AIRFLOW_PROJ_DIR:-./airflow}/dags:/opt/airflow/dags
+    - ${AIRFLOW_PROJ_DIR:-./airflow}/logs:/opt/airflow/logs
+    - ${AIRFLOW_PROJ_DIR:-./airflow}/config:/opt/airflow/config
+    - ${AIRFLOW_PROJ_DIR:-./airflow}/plugins:/opt/airflow/plugins
+    # Pipeline host mounts. Keep these outside the Airflow directory.
+    - ${PIPELINE_PROJ_DIR:-.}/data:/opt/pipeline/data
+    - ${PIPELINE_PROJ_DIR:-.}/config:/opt/pipeline/config
+    - ${PIPELINE_PROJ_DIR:-.}/data_contracts:/opt/pipeline/data_contracts
+    - ${PIPELINE_PROJ_DIR:-.}/runtime:/opt/pipeline/runtime
     - /var/run/docker.sock:/var/run/docker.sock
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
@@ -151,4 +158,3 @@ services:
 
 volumes:
   postgres-db-volume:
-  delete_pgdata:
