@@ -1,0 +1,37 @@
+dataset: air_service
+version: "1.0"
+
+source:
+  type: csv_file
+  path: data/AirService.csv
+  update_frequency: one_time
+  source_owner: https://joseantonio002.github.io/
+
+schema:
+  AirServiceId:
+    type: integer
+    nullable: false
+  AirServiceCode:
+    type: string
+    nullable: false
+  AirService:
+    type: string
+    nullable: false
+
+quality:
+  duplicates:
+    maximum: 0
+
+  null_percentage:
+    AirServiceId:
+      maximum: 0
+    AirServiceCode:
+      maximum: 0
+    AirService:
+      maximum: 0
+
+volume:
+  one_time:
+    minimum_rows: 4
+    maximum_rows: 4
+    severity: warning

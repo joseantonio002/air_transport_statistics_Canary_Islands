@@ -11,3 +11,5 @@ __pycache__
 .env
 .python-version
 log.md
+source_new_project/airflow/logs
+source_new_project/airflow/plugins

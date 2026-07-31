@@ -1,0 +1,18 @@
+dataset: territory_operations
+version: "1.0"
+source:
+  type: api
+  update_frequency: monthly
+  endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000015/
+schema:
+  TERRITORIO_CODE: {type: string, nullable: false}
+  AEROPUERTO_ESCALA_CODE: {type: string, nullable: false}
+  SERVICIO_AEREO_CODE: {type: string, nullable: false}
+  MOVIMIENTO_AERONAVE_CODE: {type: string, nullable: false}
+  TIME_PERIOD_CODE: {type: string, nullable: false}
+  OBS_VALUE: {type: number, nullable: true}
+quality:
+  natural_key: [TERRITORIO_CODE, AEROPUERTO_ESCALA_CODE, SERVICIO_AEREO_CODE, MOVIMIENTO_AERONAVE_CODE, TIME_PERIOD_CODE]
+  duplicates: {maximum: 0}
+volume:
+  monthly: {minimum_rows: 480, maximum_rows: 480, severity: warning}

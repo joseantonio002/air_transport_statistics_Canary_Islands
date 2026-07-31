@@ -365,11 +365,11 @@ Then implement and verify.
 
 ### Completion Record
 
-- **Files changed:** `source_new_project/src/create_dimensions/main.py`, generated dimension CSVs under `source_new_project/data/`, and `source_new_project/data/dimensions.log`.
-- **Tests added/modified:** `source_new_project/tests/test_dimensions.py`.
+- **Files changed:** `source_new_project/src/create_dimensions/main.py`, `source_new_project/data/reference/`, generated dimension CSVs under `source_new_project/data/`, `source_new_project/data/dimensions.log`, and `source_new_project/initialize.sh`.
+- **Tests added/modified:** `source_new_project/tests/test_dimensions.py`, `source_new_project/tests/test_deployment.py`.
 - **Commands run:** `pytest -q tests/test_dimensions.py`; `PYTHONPATH=src python -m create_dimensions.main --project-root .`; `pytest -q`.
-- **Results:** Dimension tests 4 passed; full suite 21 passed; initializer completed and generated 1,152 calendar rows.
-- **Decisions and assumptions:** The initializer uses `data/istac_airports.csv` when available, falls back to the baseline airport input, and uses `airports.csv` only for optional enrichment.
+- **Results:** Dimension initializer generated all five required tables: Airport 195 rows, Territory 12 rows, AircraftMovement 3 rows, AirService 4 rows, and CalendarMonth 1,152 rows. Full suite 44 passed.
+- **Decisions and assumptions:** The initializer uses self-contained `data/reference/` seeds for all required dimensions, uses the reference ISTAC airport source before fallbacks, and uses `airports.csv` only for optional enrichment. Missing required sources now fail instead of silently skipping outputs.
 - **Unresolved questions:** none
 
 ## Task 5 — Implement API Extraction

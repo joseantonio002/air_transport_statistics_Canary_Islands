@@ -11,6 +11,9 @@ from typing import Iterable, Mapping
 
 CALENDAR_COLUMNS = ["MonthId", "MonthStartDate", "MonthNumber", "MonthName", "QuarterNumber", "QuarterName", "Year", "YearMonth"]
 AIRPORT_COLUMNS = ["AirportId", "AirportName", "AirportCode", "IcaoCode", "Latitude", "Longitude", "CountryCode", "CountryName"]
+TERRITORY_COLUMNS = ["TerritoryId", "TerritoryCode", "TerritoryName"]
+MOVEMENT_COLUMNS = ["AircraftMovementId", "AircraftMovementCode", "AircraftMovement"]
+SERVICE_COLUMNS = ["AirServiceId", "AirServiceCode", "AirService"]
 AGGREGATE_CODES = {"ES_XES70", "ES70", "FOREIGN"}
 
 
@@ -90,6 +93,26 @@ def _write_csv(path: Path, columns: list[str], rows: Iterable[Mapping[str, objec
         writer.writerows({column: row.get(column) for column in columns} for row in rows)
 
 
+def _dimension_source(data_dir: Path, reference_name: str, legacy_name: str) -> Path:
+    for candidate in (data_dir / "reference" / reference_name, data_dir / legacy_name):
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(
+        f"required dimension source is missing: {data_dir / 'reference' / reference_name}"
+    )
+
+
+def _write_reference_dimension(data_dir: Path, source_name: str, legacy_name: str, output_name: str, columns: list[str]) -> None:
+    source = _dimension_source(data_dir, source_name, legacy_name)
+    rows = _read_csv(source)
+    if not rows:
+        raise ValueError(f"required dimension source is empty: {source}")
+    missing = [column for column in columns if column not in rows[0]]
+    if missing:
+        raise ValueError(f"dimension source {source} is missing columns: {missing}")
+    _write_csv(data_dir / output_name, columns, rows)
+
+
 def write_dimensions(output_dir: str | Path, istac_airports: Iterable[Mapping[str, object]], enrichment: Iterable[Mapping[str, object]]) -> None:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -98,11 +121,9 @@ def write_dimensions(output_dir: str | Path, istac_airports: Iterable[Mapping[st
     airport_rows = build_airport_dimension(istac_airports, enrichment)
     _write_csv(output_dir / "Airport.csv", AIRPORT_COLUMNS, airport_rows)
     _write_csv(output_dir / "CalendarMonth.csv", CALENDAR_COLUMNS, generate_calendar())
-    source_root = output_dir
-    for source_name, output_name in [("Final_Territory.csv", "Territory.csv"), ("Final_AircraftMovement.csv", "AircraftMovement.csv"), ("AirService.csv", "AirService.csv")]:
-        rows = _read_csv(source_root / source_name)
-        if rows:
-            _write_csv(output_dir / output_name, list(rows[0]), rows)
+    _write_reference_dimension(output_dir, "Territory.csv", "Final_Territory.csv", "Territory.csv", TERRITORY_COLUMNS)
+    _write_reference_dimension(output_dir, "AircraftMovement.csv", "Final_AircraftMovement.csv", "AircraftMovement.csv", MOVEMENT_COLUMNS)
+    _write_reference_dimension(output_dir, "AirService.csv", "AirService.csv", "AirService.csv", SERVICE_COLUMNS)
     unmatched = [row["AirportCode"] for row in airport_rows if row["Latitude"] is None or row["Longitude"] is None]
     enrichment_codes = {str(row.get("AirportCode") or row.get("local_code") or row.get("ident")) for row in enrichment}
     (output_dir / "dimensions.log").write_text(
@@ -117,13 +138,18 @@ def write_dimensions(output_dir: str | Path, istac_airports: Iterable[Mapping[st
         encoding="utf-8",
     )
 
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create one-time dimension tables")
     parser.add_argument("--project-root", type=Path, default=Path.cwd())
     args = parser.parse_args()
     data_dir = args.project_root / "data"
-    airports = _read_csv(data_dir / "istac_airports.csv") or _read_csv(data_dir / "Airport.csv")
+    airports = (
+        _read_csv(data_dir / "reference" / "istac_airports.csv")
+        or _read_csv(data_dir / "istac_airports.csv")
+        or _read_csv(data_dir / "Airport.csv")
+    )
+    if not airports:
+        raise FileNotFoundError("required airport source is missing: data/reference/istac_airports.csv")
     enrichment = _read_csv(data_dir / "airports.csv")
     write_dimensions(data_dir, airports, enrichment)
     return 0

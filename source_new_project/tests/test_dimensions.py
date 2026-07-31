@@ -33,10 +33,16 @@ def test_dimension_outputs_are_deterministic(tmp_path: Path) -> None:
     source = [{"AirportCode": "ES_GCTS", "AirportName": "Tenerife"}]
     first = tmp_path / "first"
     second = tmp_path / "second"
+    for directory in (first, second):
+        (directory / "reference").mkdir(parents=True)
+        (directory / "reference" / "Territory.csv").write_text("TerritoryId,TerritoryCode,TerritoryName\n1,ES,Tenerife\n", encoding="utf-8")
+        (directory / "reference" / "AircraftMovement.csv").write_text("AircraftMovementId,AircraftMovementCode,AircraftMovement\n1,ARR,Arrival\n", encoding="utf-8")
+        (directory / "reference" / "AirService.csv").write_text("AirServiceId,AirServiceCode,AirService\n1,PAX,Passengers\n", encoding="utf-8")
     write_dimensions(first, source, [])
     write_dimensions(second, source, [])
     assert (first / "CalendarMonth.csv").read_bytes() == (second / "CalendarMonth.csv").read_bytes()
     assert (first / "Airport.csv").read_bytes() == (second / "Airport.csv").read_bytes()
+    assert {path.name for path in first.glob("*.csv")} == {"Airport.csv", "Territory.csv", "AircraftMovement.csv", "AirService.csv", "CalendarMonth.csv"}
 
 
 def test_known_enrichment_match_and_dimension_schema() -> None:

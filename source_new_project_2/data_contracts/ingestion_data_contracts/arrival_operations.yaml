@@ -1,0 +1,99 @@
+dataset: arrival_operations
+version: "1.0"
+
+source:
+  type: api
+  update_frequency: monthly
+  docs: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/
+  web_page: https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000004&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000002
+  endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000006/
+  source_owner: ISTAC_instituto_canario_estadistica
+  pipeline_owner: https://joseantonio002.github.io/
+
+schema:
+  AEROPUERTO_ORIGEN_DESTINO#en:
+    type: string
+    nullable: false
+  AEROPUERTO_ORIGEN_DESTINO#es:
+    type: string
+    nullable: false
+  AEROPUERTO_ORIGEN_DESTINO_CODE:
+    type: string
+    nullable: false
+  SERVICIO_AEREO#en:
+    type: string
+    nullable: false
+  SERVICIO_AEREO#es:
+    type: string
+    nullable: false
+  SERVICIO_AEREO_CODE:
+    type: string
+    nullable: false
+  MEDIDAS#en:
+    type: string
+    nullable: false
+  MEDIDAS#es:
+    type: string
+    nullable: false
+  MEDIDAS_CODE:
+    type: string
+    nullable: false
+  MOVIMIENTO_AERONAVE#en:
+    type: string
+    nullable: false
+  MOVIMIENTO_AERONAVE#es:
+    type: string
+    nullable: false
+  MOVIMIENTO_AERONAVE_CODE:
+    type: string
+    nullable: false
+  AEROPUERTO_BASE#en:
+    type: string
+    nullable: false
+  AEROPUERTO_BASE#es:
+    type: string
+    nullable: false
+  AEROPUERTO_BASE_CODE:
+    type: string
+    nullable: false
+  TIME_PERIOD#en:
+    type: string
+    nullable: false
+  TIME_PERIOD#es:
+    type: string
+    nullable: false
+  TIME_PERIOD_CODE:
+    type: string
+    nullable: false
+  OBS_VALUE:
+    type: number
+    nullable: true
+  CONFIDENCIALIDAD_OBSERVACION#en:
+    type: string
+    nullable: true
+  CONFIDENCIALIDAD_OBSERVACION#es:
+    type: string
+    nullable: true
+  ESTADO_OBSERVACION#en:
+    type: string
+    nullable: true
+  ESTADO_OBSERVACION#es:
+    type: string
+    nullable: true
+  ESTADO_OBSERVACION_CODE:
+    type: string
+    nullable: true
+
+quality:
+  duplicates:
+    maximum: 0
+
+  null_percentage:
+    amount:
+      maximum: 0
+
+volume:
+  monthly:
+    minimum_rows: 5472
+    maximum_rows: 5472
+    severity: warning

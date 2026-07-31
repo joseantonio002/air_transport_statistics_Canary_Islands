@@ -2,12 +2,6 @@
 #                                Default: apache/airflow:3.1.8
 # AIRFLOW_UID                  - User ID used by the Airflow containers.
 #                                Default: 50000
-# AIRFLOW_PROJ_DIR             - Host directory containing Airflow's dags, logs,
-#                                config, and plugins directories.
-#                                Default: ./airflow
-# PIPELINE_PROJ_DIR            - Host project directory containing the pipeline's
-#                                data, config, data_contracts, and runtime directories.
-#                                Default: .
 #
 # Airflow and pipeline mounts intentionally use separate host roots. This keeps
 # pipeline data out of the airflow/ directory.
@@ -41,15 +35,15 @@ x-airflow-common:
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
   volumes:
     # Airflow host mounts.
-    - ${AIRFLOW_PROJ_DIR:-./airflow}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-./airflow}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-./airflow}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR:-./airflow}/plugins:/opt/airflow/plugins
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./airflow/config:/opt/airflow/config
+    - ./airflow/plugins:/opt/airflow/plugins
     # Pipeline host mounts. Keep these outside the Airflow directory.
-    - ${PIPELINE_PROJ_DIR:-.}/data:/opt/pipeline/data
-    - ${PIPELINE_PROJ_DIR:-.}/config:/opt/pipeline/config
-    - ${PIPELINE_PROJ_DIR:-.}/data_contracts:/opt/pipeline/data_contracts
-    - ${PIPELINE_PROJ_DIR:-.}/runtime:/opt/pipeline/runtime
+    - ./data:/opt/pipeline/data
+    - ./config:/opt/pipeline/config
+    - ./data_contracts:/opt/pipeline/data_contracts
+    - ./runtime:/opt/pipeline/runtime
     - /var/run/docker.sock:/var/run/docker.sock
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
