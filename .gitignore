@@ -13,3 +13,4 @@ __pycache__
 log.md
 source_new_project/airflow/logs
 source_new_project/airflow/plugins
+__pycache__
