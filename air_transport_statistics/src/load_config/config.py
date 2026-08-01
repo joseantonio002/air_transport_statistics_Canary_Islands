@@ -16,6 +16,7 @@ class ConfigurationError(ValueError):
 @dataclass(frozen=True)
 class PathConfig:
     data: Path
+    previous_version: Path
     contracts: Path
     logs: Path
     metadata: Path
