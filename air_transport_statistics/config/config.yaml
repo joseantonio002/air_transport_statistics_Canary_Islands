@@ -21,7 +21,7 @@ paths: # paths are relative to the root directory of the project
   metadata: runtime/run_metadata
   temporary: runtime/tmp
 retry_count: 5
-request_timeout: 30
+request_timeout: 300
 pipeline_timeout: 3600
 backoff_factor: 1
 full_history_start_month: 2004-01

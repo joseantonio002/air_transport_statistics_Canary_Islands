@@ -22,6 +22,7 @@ from .common import (
 )
 
 LOGGER = logging.getLogger(__name__)
+DOWNLOAD_DELAY_SECONDS = 1.0
 
 AIRPORT_DATASETS = {
     "total_passengers": "airport_total_passengers",
@@ -42,6 +43,7 @@ TERRITORY_DATASETS = {
 
 
 def _download(url: str, path: Path, retries: int, timeout: float, backoff: float) -> None:
+    print(f"Trying to download data from {url}")
     last_error: Exception | None = None
     for attempt in range(retries + 1):
         try:
@@ -53,6 +55,7 @@ def _download(url: str, path: Path, retries: int, timeout: float, backoff: float
                     for chunk in response.iter_content(chunk_size=1024 * 1024):
                         if chunk:
                             output.write(chunk)
+            time.sleep(DOWNLOAD_DELAY_SECONDS)
             return
         except requests.HTTPError as exc:
             status = exc.response.status_code if exc.response is not None else None
@@ -78,8 +81,8 @@ def _url(base_url: str, dataset_id: str, start: str | None, end: str | None) -> 
     endpoint = f"{base_url.rstrip('/')}/datasets/ISTAC/{dataset_id}/~latest.csv"
     if start is None:
         representation = "TIME_PERIOD[~last=1]"
-    elif start == "1900-01":
-        representation = "TIME_PERIOD[~after=1900-M01]"
+    elif start == "2004-01":
+        representation = "TIME_PERIOD[~after=2004-M01]"
     else:
         representation = f"TIME_PERIOD[~range={start.replace('-', '-M')};{end.replace('-', '-M')}]"
     return f"{endpoint}?representation={representation}&granularity=TIME_PERIOD[M]&lang=en"
@@ -172,7 +175,7 @@ def extract(config: object, contract_dir: Path, temporary_dir: Path, run_id: str
     latest = airport_latest
     if local_latest is not None and local_latest >= latest:
         raise AlreadyUpToDateError(f"no new data: local month {local_latest}, ISTAC month {latest}")
-    start = local_latest + 1 if local_latest is not None else 190001
+    start = local_latest + 1 if local_latest is not None else 200401
     airport_files, airport_start, airport_end = _extract_group(
         config, contract_dir, temporary_dir, AIRPORT_DATASETS, start, latest, run_id
     )
