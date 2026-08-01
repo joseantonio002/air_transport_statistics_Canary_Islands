@@ -1,51 +1,44 @@
-import pandas as pd
-import requests
-from io import StringIO
 from calendar import month_name
 from datetime import date
+from pathlib import Path
+import sys
+import tempfile
 
-def _get_data_from_API_call(url: str):
-    """
-    Send a GET request to the specified URL and return the response
-    content as a file-like StringIO object.
+import pandas as pd
+import requests
 
-    Parameters
-    ----------
-    url : str
-        The complete endpoint URL from which data will be fetched.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC_ROOT = PROJECT_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
-    Returns
-    -------
-    io.StringIO
-        A file-like object containing the UTF-8 decoded response text.
+from load_config.config import load_config
 
-    Raises
-    ------
-    Exception
-        If the HTTP status code is anything other than 200, an
-        exception is raised with a message that includes the received
-        status code.
-    """
-    # Send HTTP GET request
-    response = requests.get(url)
-    # Check if the request was successful
-    if response.status_code == 200:
-        data = StringIO(response.content.decode("utf-8"))
-        return data
-    else:
-        print("Failed to retrieve data. Status code:", response.status_code)    
-        raise Exception(f"Failed to retrieve data. Status code: {response.status_code}")
+def _read_csv_from_url(url: str, request_timeout: float, usecols: list[str] | None = None) -> pd.DataFrame:
+    with requests.get(url, stream=True, timeout=request_timeout) as response:
+        response.raise_for_status()
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".csv") as temporary_file:
+            for chunk in response.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    temporary_file.write(chunk)
+            temporary_file.flush()
+            return pd.read_csv(temporary_file.name, usecols=usecols)
 
 # https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000001&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000001#visualization/table
 LATEST_DATA_AIRPORTS = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000001/~latest.csv?lang=en"
 # https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/data.html?resourceType=dataset&agencyId=ISTAC&resourceId=C00017A_000013&version=%7Elatest&multidatasetId=ISTAC%3AC00017A_000004#visualization/table
 LATEST_DATA_REMANING_TABLES = "https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000013/~latest.csv?lang=en"
+
+OURAIRPORTS_AIRPORTS_CSV = "https://davidmegginson.github.io/ourairports-data/airports.csv"
 # Airport code column in ourairports dataset
 JOIN_COL_OUR_AIRPORT = 'ident' 
 
-def create_airports():
-  df: pd.DataFrame = pd.read_csv(_get_data_from_API_call(LATEST_DATA_AIRPORTS))
-  df.drop(columns=df.columns[df.columns.str.endswith('#es')], inplace=True)
+def create_airports(data_dir: Path, request_timeout: float):
+  df: pd.DataFrame = _read_csv_from_url(
+      LATEST_DATA_AIRPORTS,
+      request_timeout=request_timeout,
+      usecols=['AEROPUERTO_ESCALA#en', 'AEROPUERTO_ESCALA_CODE'],
+  )
 
   # Dataframe with every country that appears in the original dataset and its iso code
   countries: pd.DataFrame = df.loc[df['AEROPUERTO_ESCALA_CODE'].str.match(r'^[A-Z]{2}$', na=False), ['AEROPUERTO_ESCALA#en', 'AEROPUERTO_ESCALA_CODE']]
@@ -71,7 +64,11 @@ def create_airports():
   istac_airports[JOIN_COL_OUR_AIRPORT] = istac_airports['AEROPUERTO_ESCALA_CODE'].str[3:]
   
   # Join istac airports with ourairports dataset to obtain the coordinates from each airport
-  airport_csv: pd.DataFrame = pd.read_csv('airports.csv') # Replace this with a direct download from https://davidmegginson.github.io/ourairports-data/airports.csv
+  airport_csv: pd.DataFrame = _read_csv_from_url(
+      OURAIRPORTS_AIRPORTS_CSV,
+      request_timeout=request_timeout,
+      usecols=[JOIN_COL_OUR_AIRPORT, 'latitude_deg', 'longitude_deg', 'iso_country'],
+  )
   airport_csv = airport_csv.merge(countries, on='iso_country')
   join: pd.DataFrame = istac_airports.merge(airport_csv, on=JOIN_COL_OUR_AIRPORT, suffixes=("l", "r"))
 
@@ -83,7 +80,7 @@ def create_airports():
   # It's not worth it changing the logic of the whole pipeline just for these 4 airports
   # For now leave it as it is (ignore these airports), if the number of missing airports
   # increases then I will look into it
-  if len(missing_airports > 6):
+  if len(missing_airports) > 6:
     raise Exception("Too many missing airports")
 
   # Create final dataset
@@ -92,16 +89,29 @@ def create_airports():
                     'latitude_deg': 'Latitude', 'longitude_deg': 'Longitude', 
                     'country': 'CountryName', 'AEROPUERTO_ESCALA_CODE': 'AirportCode'}, axis=1, inplace=True)
   result_df['AirportId'] = result_df.index
-  result_df.to_csv('../../data/Airport.csv', index=False)
+  result_df.to_csv(data_dir / 'Airport.csv', index=False)
 
 
-def create_territory_aircraftmovement_airservice():
-  df: pd.DataFrame = pd.read_csv(pd.read_csv(_get_data_from_API_call(LATEST_DATA_REMANING_TABLES)))
-  create_territory(df)
-  create_aircraftmovement(df)
-  create_airservice(df)
+def create_territory_aircraftmovement_airservice(data_dir: Path, request_timeout: float):
+  df: pd.DataFrame = _read_csv_from_url(
+      LATEST_DATA_REMANING_TABLES,
+      request_timeout=request_timeout,
+      usecols=[
+          'MOVIMIENTO_AERONAVE_CODE',
+          'MOVIMIENTO_AERONAVE#en',
+          'SERVICIO_AEREO_CODE',
+          'SERVICIO_AEREO#en',
+          'TERRITORIO_CODE',
+          'TERRITORIO#en',
+          'AEROPUERTO_ESCALA_CODE',
+          'AEROPUERTO_ESCALA#en',
+      ],
+  )
+  create_territory(df, data_dir)
+  create_aircraftmovement(df, data_dir)
+  create_airservice(df, data_dir)
 
-def create_aircraftmovement(df: pd.DataFrame):
+def create_aircraftmovement(df: pd.DataFrame, data_dir: Path):
   df_am = df[['MOVIMIENTO_AERONAVE_CODE', 'MOVIMIENTO_AERONAVE#en']].drop_duplicates().reset_index(drop=True)
 
   df_am['AircraftMovementId'] = df_am.index
@@ -110,9 +120,9 @@ def create_aircraftmovement(df: pd.DataFrame):
 
   df_am = df_am[['AircraftMovementId', 'AircraftMovementCode', 'AircraftMovement']]
 
-  df_am.to_csv('../../data/Final_AircraftMovement.csv', index=False)
+  df_am.to_csv(data_dir / 'Final_AircraftMovement.csv', index=False)
 
-def create_airservice(df: pd.DataFrame):
+def create_airservice(df: pd.DataFrame, data_dir: Path):
   df_as = df[['SERVICIO_AEREO_CODE', 'SERVICIO_AEREO#en']].drop_duplicates().reset_index(drop=True)
 
   df_as['AirServiceId'] = df_as.index
@@ -121,9 +131,9 @@ def create_airservice(df: pd.DataFrame):
 
   df_as = df_as[['AirServiceId', 'AirServiceCode','AirService']]
 
-  df_as.to_csv('../../data/AirService.csv', index=False)
+  df_as.to_csv(data_dir / 'AirService.csv', index=False)
 
-def create_territory(df: pd.DataFrame):
+def create_territory(df: pd.DataFrame, data_dir: Path):
   
   df_terr = pd.concat([df[['TERRITORIO_CODE', 'TERRITORIO#en']], df[['AEROPUERTO_ESCALA_CODE', 'AEROPUERTO_ESCALA#en']].rename({'AEROPUERTO_ESCALA#en': 'TERRITORIO#en', 'AEROPUERTO_ESCALA_CODE': 'TERRITORIO_CODE'}, axis=1)]).drop_duplicates()
   df_terr.reset_index(inplace=True, drop=True)
@@ -134,14 +144,14 @@ def create_territory(df: pd.DataFrame):
   df_terr.rename({'TERRITORIO_CODE': 'TerritoryCode', 'TERRITORIO#en': 'TerritoryName'}, inplace=True, axis=1)
   df_terr = df_terr[['TerritoryId', 'TerritoryCode', 'TerritoryName']]
 
-  df_terr.to_csv('../../data/Final_Territory.csv', index=False)
+  df_terr.to_csv(data_dir / 'Territory.csv', index=False)
 
 def _month(value: str) -> date:
     year, number = (int(part) for part in value.split("-"))
     return date(year, number, 1)
 
 
-def generate_calendar(start: str = "2004-01", end: str = "2099-12") -> list[dict[str, object]]:
+def generate_calendar(data_dir: Path, start: str = "2004-01", end: str = "2099-12") -> pd.DataFrame:
     current, last = _month(start), _month(end)
     result = []
     while current <= last:
@@ -157,10 +167,24 @@ def generate_calendar(start: str = "2004-01", end: str = "2099-12") -> list[dict
             "YearMonth": current.strftime("%Y-%m"),
         })
         current = date(current.year + (current.month == 12), 1 if current.month == 12 else current.month + 1, 1)
-    CALENDAR_COLUMNS = ["MonthId", "MonthStartDate", "MonthNumber", "MonthName", "QuarterNumber", "QuarterName", "Year", "YearMonth"]
-    #return result save result as a CSV file
+    calendar_columns = ["MonthId", "MonthStartDate", "MonthNumber", "MonthName", "QuarterNumber", "QuarterName", "Year", "YearMonth"]
+    calendar_df = pd.DataFrame(result, columns=calendar_columns)
+    calendar_df.to_csv(data_dir / 'CalendarMonth.csv', index=False)
+    return calendar_df
+
+
+def main() -> None:
+    config = load_config(PROJECT_ROOT)
+    data_dir = config.paths.data
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    create_airports(data_dir, config.request_timeout)
+    create_territory_aircraftmovement_airservice(data_dir, config.request_timeout)
+    generate_calendar(
+        data_dir=data_dir,
+        start=config.full_history_start_month,
+        end=config.calendar_end_month,
+    )
 
 if __name__ == "__main__":
-   # Read from config.yaml full_history_start_month and calendar_end_month and use that to generate_calendar
-   # create a main function that calls all functions 
-   # Change the paths to use the data path defined in @source_new_project_2/config/config.yaml, the paths inside config are relative to the root folder (in the future all the code in source_new_project_2 will be moved to the true root folder)
+   main()

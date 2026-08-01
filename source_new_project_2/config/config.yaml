@@ -13,7 +13,7 @@ source:
     territory_passengers: C00017A_000013
     territory_goods_mail: C00017A_000014
     territory_operations: C00017A_000015
-paths:
+paths: # paths are relative to the root directory of the project
   data: data
   contracts: data_contracts
   logs: runtime/logs
