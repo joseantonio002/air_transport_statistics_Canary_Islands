@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who visits the Canary Islands?</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+      color: #333;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      background-color: #004d66;
+      color: white;
+    }
+
+    header h1 {
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+
+    header p {
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .chart {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    .chart h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #004d66;
+    }
+
+    .plotly-frame {
+      width: 100%;
+      height: 550px;
+      border: none;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>✈️ Who visits the Canary Islands? ✈️</h1>
+    <p>
+      This page explores air traffic statistics across the Canary Islands, 
+      including the number of passengers, volume of mail, weight of goods transported, 
+      and total airport operations (landings and takeoffs). <a target="_blank" href="https://www3.gobiernodecanarias.org/istac/statistical-visualizer/visualizer/collection.html?resourceType=collection&agencyId=ISTAC&resourceId=C00017A_000001">Source data</a>
+    </p>
+  </header>
+
+  <main>
+    <section class="chart">
+      <h2>Map of traffic per airport in the last 6 months</h2>
+      <iframe src="air_traffic.html" class="plotly-frame"></iframe>
+    </section>
+
+    <section class="chart">
+      <h2>Traffic per airport in the last 16 years</h2>
+      <iframe src="line_graph.html" class="plotly-frame"></iframe>
+    </section>
+
+    <section class="chart">
+      <h2>Passenger predictions for next year by island</h2>
+      <iframe src="prediction_graph.html" class="plotly-frame"></iframe>
+    </section>
+
+    <section class="chart">
+      <h2>Arriving passengers by origin airport in the last year</h2>
+      <iframe src="airport_bar_chart.html" class="plotly-frame"></iframe>
+    </section>
+  </main>
+</body>
+</html>
