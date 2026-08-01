@@ -41,7 +41,6 @@ class Config:
     full_history_start_month: str
     calendar_end_month: str
     airflow_timezone: str
-    latest_available_month: str
 
 
 def _dotenv_values(path: Path) -> dict[str, str]:
@@ -111,5 +110,4 @@ def load_config(project_root: str | Path | None = None) -> Config:
         full_history_start_month=str(_value("PIPELINE_FULL_HISTORY_START_MONTH", dotenv, raw.get("full_history_start_month", "2004-01"))),
         calendar_end_month=str(_value("PIPELINE_CALENDAR_END_MONTH", dotenv, raw.get("calendar_end_month", "2099-12"))),
         airflow_timezone=str(_value("PIPELINE_AIRFLOW_TIMEZONE", dotenv, raw.get("airflow_timezone", "Atlantic/Canary"))),
-        latest_available_month=str(_value("PIPELINE_LATEST_AVAILABLE_MONTH", dotenv, raw.get("latest_available_month", "2026-06"))),
     )

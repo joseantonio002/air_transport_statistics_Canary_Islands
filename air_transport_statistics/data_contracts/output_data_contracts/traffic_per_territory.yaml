@@ -3,7 +3,7 @@ version: "1.0"
 
 source:
   type: csv_file
-  path: data/TrafficPerTerritory.csv
+  name: TrafficPerTerritory.csv
   update_frequency: monthly
   source_owner: https://joseantonio002.github.io/
 

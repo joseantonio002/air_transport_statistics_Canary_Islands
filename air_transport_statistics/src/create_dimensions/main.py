@@ -120,7 +120,7 @@ def create_aircraftmovement(df: pd.DataFrame, data_dir: Path):
 
   df_am = df_am[['AircraftMovementId', 'AircraftMovementCode', 'AircraftMovement']]
 
-  df_am.to_csv(data_dir / 'Final_AircraftMovement.csv', index=False)
+  df_am.to_csv(data_dir / 'AircraftMovement.csv', index=False)
 
 def create_airservice(df: pd.DataFrame, data_dir: Path):
   df_as = df[['SERVICIO_AEREO_CODE', 'SERVICIO_AEREO#en']].drop_duplicates().reset_index(drop=True)

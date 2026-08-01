@@ -3,7 +3,7 @@ version: "1.0"
 
 source:
   type: csv_file
-  path: data/AirService.csv
+  name: AirService.csv
   update_frequency: one_time
   source_owner: https://joseantonio002.github.io/
 

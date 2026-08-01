@@ -5,6 +5,7 @@ source:
   update_frequency: monthly
   endpoint: https://datos.canarias.es/api/estadisticas/statistical-resources/v1.0/datasets/ISTAC/C00017A_000014/
 schema:
+  MEDIDAS_CODE: {type: string, nullable: false}
   TERRITORIO_CODE: {type: string, nullable: false}
   AEROPUERTO_ESCALA_CODE: {type: string, nullable: false}
   SERVICIO_AEREO_CODE: {type: string, nullable: false}
@@ -12,7 +13,7 @@ schema:
   TIME_PERIOD_CODE: {type: string, nullable: false}
   OBS_VALUE: {type: number, nullable: true}
 quality:
-  natural_key: [TERRITORIO_CODE, AEROPUERTO_ESCALA_CODE, SERVICIO_AEREO_CODE, MOVIMIENTO_AERONAVE_CODE, TIME_PERIOD_CODE]
+  natural_key: [MEDIDAS_CODE, TERRITORIO_CODE, AEROPUERTO_ESCALA_CODE, SERVICIO_AEREO_CODE, MOVIMIENTO_AERONAVE_CODE, TIME_PERIOD_CODE]
   duplicates: {maximum: 0}
 volume:
-  monthly: {minimum_rows: 480, maximum_rows: 480, severity: warning}
+  monthly: {minimum_rows: 1536, maximum_rows: 1536, severity: fatal}
