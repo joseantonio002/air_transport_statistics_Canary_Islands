@@ -112,8 +112,8 @@ def load(config: object, transform_result: TransformResult, start_month: str, en
         "TrafficPerTerritory": data_dir / "TrafficPerTerritory.csv",
     }
     staged_paths = {
-        name: temporary_dir / f"{name}.csv.staged"
-        for name in output_paths
+      name: output_path.with_name(f".{output_path.name}.staged")
+      for name, output_path in output_paths.items()
     }
     with duckdb.connect(str(database_path)) as con:
         first_month, last_month = con.execute(

@@ -174,7 +174,7 @@ def generate_calendar(data_dir: Path, start: str = "2004-01", end: str = "2099-1
 
 
 def main() -> None:
-    config = load_config(PROJECT_ROOT)
+    config = load_config()
     data_dir = config.paths.data
     data_dir.mkdir(parents=True, exist_ok=True)
 
