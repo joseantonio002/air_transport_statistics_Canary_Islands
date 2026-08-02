@@ -8,6 +8,8 @@ from typing import Any
 
 import yaml
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 
 class ConfigurationError(ValueError):
     """Raised when pipeline configuration is missing or invalid."""
@@ -67,9 +69,8 @@ def _required(mapping: dict[str, Any], key: str, path: str) -> Any:
     return value
 
 
-def load_config(project_root: str | Path | None = None) -> Config:
-    root = Path(project_root or os.environ.get("PIPELINE_ROOT", Path.cwd())).resolve()
-    config_path = root / "config" / "config.yaml"
+def load_config() -> Config:
+    config_path = PROJECT_ROOT / "config" / "config.yaml"
     if not config_path.is_file():
         raise ConfigurationError(f"configuration file not found: {config_path}")
     try:
@@ -78,7 +79,7 @@ def load_config(project_root: str | Path | None = None) -> Config:
         raise ConfigurationError(f"invalid YAML in {config_path}: {exc}") from exc
     if not isinstance(raw, dict):
         raise ConfigurationError("configuration root must be a mapping")
-    dotenv = _dotenv_values(root / ".env")
+    dotenv = _dotenv_values(PROJECT_ROOT / ".env")
     source_raw = raw.get("source") or {}
     paths_raw = raw.get("paths") or {}
     if not isinstance(source_raw, dict) or not isinstance(paths_raw, dict):
@@ -92,7 +93,7 @@ def load_config(project_root: str | Path | None = None) -> Config:
     path_values = {}
     for key in PathConfig.__annotations__:
         configured = _required(paths_raw, key, f"paths.{key}")
-        path_values[key] = (root / configured).resolve() if not Path(configured).is_absolute() else Path(configured)
+        path_values[key] = (PROJECT_ROOT / configured).resolve() if not Path(configured).is_absolute() else Path(configured)
     retry_count = int(_value("PIPELINE_RETRY_COUNT", dotenv, raw.get("retry_count", 5)))
     request_timeout = float(_value("PIPELINE_REQUEST_TIMEOUT", dotenv, raw.get("request_timeout", 30)))
     pipeline_timeout = float(_value("PIPELINE_TIMEOUT", dotenv, raw.get("pipeline_timeout", 3600)))
@@ -100,7 +101,7 @@ def load_config(project_root: str | Path | None = None) -> Config:
     if retry_count < 0 or request_timeout <= 0 or pipeline_timeout <= 0 or backoff_factor < 0:
         raise ConfigurationError("retry and timeout values must be valid positive values")
     return Config(
-        project_root=root,
+        project_root=PROJECT_ROOT,
         source=SourceConfig(str(api_url), {str(k): str(v) for k, v in datasets.items()}),
         paths=PathConfig(**path_values),
         retry_count=retry_count,

@@ -4,15 +4,11 @@ from prophet import Prophet
 from pathlib import Path
 import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-SRC_ROOT = PROJECT_ROOT / "src"
-if str(SRC_ROOT) not in sys.path:
-    sys.path.insert(0, str(SRC_ROOT))
-
 from load_config.config import load_config
 
+
 def pipeline_models():
-    config = load_config(PROJECT_ROOT)
+    config = load_config()
     data_dir = config.paths.data
 
     df = pd.read_csv(data_dir / "TrafficPerTerritory.csv")

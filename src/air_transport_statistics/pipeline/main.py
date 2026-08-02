@@ -34,8 +34,8 @@ def _logger(run_id: str, path: Path) -> logging.Logger:
     return logger
 
 
-def run(project_root: str | Path | None = None) -> int:
-    config = load_config(project_root)
+def run() -> int:
+    config = load_config()
     run_id = uuid.uuid4().hex
     log_path = config.paths.logs / f"pipeline-{run_id}.log"
     logger = _logger(run_id, log_path)
@@ -106,9 +106,8 @@ def run(project_root: str | Path | None = None) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Update air-transport fact tables")
     parser.add_argument("command", nargs="?", default="run", choices=["run"])
-    parser.add_argument("--project-root", type=Path, default=None)
     args = parser.parse_args(argv)
-    return run(args.project_root)
+    return run()
 
 
 if __name__ == "__main__":
