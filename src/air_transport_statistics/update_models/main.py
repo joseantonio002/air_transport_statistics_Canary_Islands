@@ -4,7 +4,7 @@ from prophet import Prophet
 from pathlib import Path
 import sys
 
-from load_config.config import load_config
+from air_transport_statistics.load_config.config import load_config
 
 
 def pipeline_models():

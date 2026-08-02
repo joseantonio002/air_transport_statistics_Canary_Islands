@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-import argparse
 import logging
 import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from load_config.config import load_config
+from air_transport_statistics.load_config.config import load_config
 
-from .common import AlreadyUpToDateError, PipelineError, write_json
+from .common import AlreadyUpToDateError, write_json
 from .extraction import extract
 from .load import load, validate_existing
 from .transform import transform
@@ -103,10 +102,7 @@ def run() -> int:
             database_path.with_suffix(".duckdb.wal").unlink(missing_ok=True)
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Update air-transport fact tables")
-    parser.add_argument("command", nargs="?", default="run", choices=["run"])
-    args = parser.parse_args(argv)
+def main() -> int:
     return run()
 
 
