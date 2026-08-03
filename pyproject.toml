@@ -13,6 +13,7 @@ dependencies = [
     "cmdstanpy==1.2.5",
     "requests==2.32.4",
     "plotly==6.3.1",
+    "python-dateutil==2.9.0.post0",
     "PyYAML==6.0.2",
 ]
 

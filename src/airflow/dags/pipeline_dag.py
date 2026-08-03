@@ -19,13 +19,14 @@ with DAG(
     run_pipeline = DockerOperator(
         task_id="run_pipeline",
         image=os.environ.get("PIPELINE_IMAGE", "istac-air-transport-pipeline:latest"),
-        command="python -m pipeline run",
+        command="python -m air_transport_statistics run-all",
         docker_url="unix://var/run/docker.sock",
         mount_tmp_dir=False,
         mounts=[
-            Mount(source=os.environ.get("PIPELINE_DATA_DIR", "./data"), target="/opt/pipeline/data", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_CONFIG_DIR", "./config"), target="/opt/pipeline/config", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_CONTRACT_DIR", "./data_contracts"), target="/opt/pipeline/data_contracts", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_RUNTIME_DIR", "./runtime"), target="/opt/pipeline/runtime", type="bind"),
+            Mount(source=os.environ.get("PIPELINE_DATA_DIR", "./data"), target="/app/src/data", type="bind"),
+            Mount(source=os.environ.get("PIPELINE_CONFIG_DIR", "./config"), target="/app/src/config", type="bind"),
+            Mount(source=os.environ.get("PIPELINE_CONTRACT_DIR", "./data_contracts"), target="/app/src/data_contracts", type="bind"),
+            Mount(source=os.environ.get("PIPELINE_RUNTIME_DIR", "./runtime"), target="/app/src/runtime", type="bind"),
+            Mount(source=os.environ.get("PIPELINE_DOCS_DIR", "../docs"), target="/app/docs", type="bind"),
         ],
     )
