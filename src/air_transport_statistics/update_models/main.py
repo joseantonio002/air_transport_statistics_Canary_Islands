@@ -1,8 +1,7 @@
 import pandas as pd
 import duckdb as db
 from prophet import Prophet
-from pathlib import Path
-import sys
+import shutil
 
 from air_transport_statistics.load_config.config import load_config
 
@@ -60,7 +59,11 @@ def pipeline_models():
 
     predictions_dir = data_dir / "predictions"
     predictions_dir.mkdir(parents=True, exist_ok=True)
-    final.to_csv(predictions_dir / "Predictions.csv", index=False)
+    predictions_path = predictions_dir / "Predictions.csv"
+    if predictions_path.is_file():
+        config.paths.previous_version.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(predictions_path, config.paths.previous_version / predictions_path.name)
+    final.to_csv(predictions_path, index=False)
 
 if __name__ == "__main__":
     pipeline_models()
