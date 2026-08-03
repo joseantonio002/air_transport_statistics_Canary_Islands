@@ -1,7 +1,9 @@
 # AIRFLOW_IMAGE_NAME           - Docker image used to run Airflow.
 #                                Default: apache/airflow:3.1.8
 # AIRFLOW_UID                  - User ID used by the Airflow containers.
-#                                Default: 50000
+#                                Required; configured by initialize.sh.
+# DOCKER_GID                   - Group ID that owns /var/run/docker.sock.
+#                                Required; configured by initialize.sh.
 #
 # Airflow and pipeline mounts intentionally use separate host roots. This keeps
 # pipeline data out of the airflow/ directory.
@@ -33,19 +35,20 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    PIPELINE_IMAGE: ${PIPELINE_IMAGE:?PIPELINE_IMAGE must be set}
+    PIPELINE_DATA_DIR: ${PIPELINE_DATA_DIR:?PIPELINE_DATA_DIR must be set}
+    PIPELINE_CONFIG_DIR: ${PIPELINE_CONFIG_DIR:?PIPELINE_CONFIG_DIR must be set}
+    PIPELINE_CONTRACT_DIR: ${PIPELINE_CONTRACT_DIR:?PIPELINE_CONTRACT_DIR must be set}
+    PIPELINE_RUNTIME_DIR: ${PIPELINE_RUNTIME_DIR:?PIPELINE_RUNTIME_DIR must be set}
+    PIPELINE_DOCS_DIR: ${PIPELINE_DOCS_DIR:?PIPELINE_DOCS_DIR must be set}
   volumes:
     # Airflow host mounts.
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/config:/opt/airflow/config
     - ./airflow/plugins:/opt/airflow/plugins
-    # Pipeline host mounts. Keep these outside the Airflow directory.
-    - ./data:/opt/pipeline/data
-    - ./config:/opt/pipeline/config
-    - ./data_contracts:/opt/pipeline/data_contracts
-    - ./runtime:/opt/pipeline/runtime
     - /var/run/docker.sock:/var/run/docker.sock
-  user: "${AIRFLOW_UID:-50000}:0"
+  user: "${AIRFLOW_UID:?Run initialize.sh to configure AIRFLOW_UID}:0"
   depends_on:
     &airflow-common-depends-on
     postgres:
@@ -95,7 +98,7 @@ services:
       start_period: 30s
     restart: always
     group_add:
-      - "${DOCKER_GID}"
+      - "${DOCKER_GID:?Run initialize.sh to configure DOCKER_GID}"
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -122,14 +125,6 @@ services:
     command:
       - -c
       - |
-        if [[ -z "${AIRFLOW_UID}" ]]; then
-          echo
-          echo -e "\033[1;33mWARNING!!!: AIRFLOW_UID not set!\e[0m"
-          echo "If you are on Linux, it is recommended to set AIRFLOW_UID to your user id."
-          echo
-          export AIRFLOW_UID=$$(id -u)
-        fi
-
         mkdir -p /opt/airflow/{logs,dags,plugins,config}
 
         echo "Airflow version:"

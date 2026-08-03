@@ -19,3 +19,27 @@ This project is an automated data pipeline that collects, processes, and visuali
 [Airport Data](https://ourairports.com/data/?spm=a2ty_o01.29997173.0.0.59a6c921d0cVCU)
 
 Python version used for the project == 3.12.11
+
+## Docker And Airflow
+
+Initialize the project after cloning it:
+
+```bash
+./src/initialize.sh
+```
+
+The initializer detects the Airflow user ID and Docker socket group ID, then
+stores machine-specific Compose settings in `src/runtime/compose.env`. Optional
+Airflow settings remain in `src/.env`.
+
+Use both environment files for later Compose lifecycle commands:
+
+```bash
+docker compose --env-file src/.env --env-file src/runtime/compose.env -f src/compose.yaml stop
+docker compose --env-file src/.env --env-file src/runtime/compose.env -f src/compose.yaml start
+docker compose --env-file src/.env --env-file src/runtime/compose.env -f src/compose.yaml down
+docker compose --env-file src/.env --env-file src/runtime/compose.env -f src/compose.yaml up -d
+```
+
+`docker compose down` preserves the PostgreSQL named volume. Using `down -v`
+also deletes that volume.

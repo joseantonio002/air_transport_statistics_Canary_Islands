@@ -1,32 +1,30 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import os
 
-import pendulum
 from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 
 
-timezone = os.environ.get("PIPELINE_TIMEZONE", "Atlantic/Canary")
 with DAG(
     dag_id="istac_air_transport_pipeline",
     schedule="0 6 5 * *",
-    start_date=pendulum.datetime(2026, 1, 1, tz=timezone),
+    start_date=datetime(2026, 1, 1),
     catchup=False,
     default_args={"retries": int(os.environ.get("PIPELINE_RETRIES", "5"))},
     dagrun_timeout=timedelta(seconds=int(os.environ.get("PIPELINE_TIMEOUT", "3600"))),
 ) as dag:
     run_pipeline = DockerOperator(
         task_id="run_pipeline",
-        image=os.environ.get("PIPELINE_IMAGE", "istac-air-transport-pipeline:latest"),
+        image=os.environ["PIPELINE_IMAGE"],
         command="python -m air_transport_statistics run-all",
         docker_url="unix://var/run/docker.sock",
         mount_tmp_dir=False,
         mounts=[
-            Mount(source=os.environ.get("PIPELINE_DATA_DIR", "./data"), target="/app/src/data", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_CONFIG_DIR", "./config"), target="/app/src/config", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_CONTRACT_DIR", "./data_contracts"), target="/app/src/data_contracts", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_RUNTIME_DIR", "./runtime"), target="/app/src/runtime", type="bind"),
-            Mount(source=os.environ.get("PIPELINE_DOCS_DIR", "../docs"), target="/app/docs", type="bind"),
+            Mount(source=os.environ["PIPELINE_DATA_DIR"], target="/app/src/data", type="bind"),
+            Mount(source=os.environ["PIPELINE_CONFIG_DIR"], target="/app/src/config", type="bind"),
+            Mount(source=os.environ["PIPELINE_CONTRACT_DIR"], target="/app/src/data_contracts", type="bind"),
+            Mount(source=os.environ["PIPELINE_RUNTIME_DIR"], target="/app/src/runtime", type="bind"),
+            Mount(source=os.environ["PIPELINE_DOCS_DIR"], target="/app/docs", type="bind"),
         ],
     )

@@ -26,4 +26,3 @@ pipeline_timeout: 3600
 backoff_factor: 1
 full_history_start_month: 2004-01
 calendar_end_month: 2099-12
-airflow_timezone: Atlantic/Canary

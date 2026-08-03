@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir \
     python-dateutil==2.9.0.post0 \
     PyYAML==6.0.2
 
-COPY air_transport_statistics /app/src/air_transport_statistics
+COPY src/air_transport_statistics /app/src/air_transport_statistics
 
 RUN mkdir -p /app/docs /app/src/config /app/src/data /app/src/data_contracts /app/src/runtime
 

@@ -1,0 +1,11 @@
+.git
+.venv
+docs
+docs_testing
+src/airflow
+src/config
+src/data
+src/data_contracts
+src/runtime
+**/__pycache__
+*.csv
