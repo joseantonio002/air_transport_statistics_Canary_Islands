@@ -5,3 +5,4 @@ cmdstanpy==1.2.5
 requests==2.32.4
 plotly==6.3.1
 PyYAML==6.0.2
+python-dateutil==2.9.0.post0

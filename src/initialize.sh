@@ -73,9 +73,11 @@ printf '%s\n' \
 echo "Saved machine-specific Compose settings to $COMPOSE_ENV_FILE"
 
 cd "$PROJECT_ROOT"
+echo "Creating dimension tables"
 PYTHONPATH=src python -m create_dimensions.main
 
 echo "Building pipeline image"
 docker build -f src/Dockerfile -t "$PIPELINE_IMAGE" .
-echo "Setting up airflow and executing DAG, this may take a while"
+echo "Setting up airflow and executing the DAG pipeline, this may take a while"
+echo "To see the DAG running go to http://localhost:8080/
 docker compose up -d
