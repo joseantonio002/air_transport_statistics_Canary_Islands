@@ -53,11 +53,14 @@ The script performs the initial project setup:
 * starts Airflow;
 * runs the pipeline for the first time.
 
-Once the process finishes, the generated dashboard will be available at:
+Once the process finishes, the generated dashboard and data lake with all the tables will be available at:
 
 ```text
-./docs/index.html
+./docs/index.html # Dashboard
+./src/data/ # Data Lake
 ```
+
+
 
 During initialization, the script detects the current user ID and the Docker socket group ID. It stores these machine-specific Docker Compose values in:
 
