@@ -4,7 +4,7 @@ This project implements an automated data pipeline that collects, processes, and
 
 ## [Dashboard](https://joseantonio002.github.io/air_transport_statistics_Canary_Islands/)
 
-![img1](./air_transport_pipeline_diagram.png)
+![img1](./air_transport_diagram.png)
 
 ## Try it yourself
 
