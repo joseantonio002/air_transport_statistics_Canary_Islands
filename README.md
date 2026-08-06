@@ -6,8 +6,6 @@ This project implements an automated data pipeline that collects, processes, and
 
 ![img1](./air_transport_pipeline_diagram.png)
 
-## [Development blog post](https://joseantonio002.github.io/blog/post-4/)
-
 ## Try it yourself
 
 Before starting the platform, make sure the following tools are installed:
